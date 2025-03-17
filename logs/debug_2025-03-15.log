@@ -1,0 +1,4410 @@
+[2025-03-15 10:34:22] Viewing invoice ID: 7
+[2025-03-15 10:34:22] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:34:22] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:34:22] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:34:22] Invoice ID: 7
+[2025-03-15 10:34:22] Shipments count: 1
+[2025-03-15 10:34:22] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:34:22] Shipments count: 1
+[2025-03-15 10:34:22] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:34:22] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:36:23] Viewing invoice ID: 7
+[2025-03-15 10:36:23] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:36:23] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:36:23] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:36:23] Invoice ID: 7
+[2025-03-15 10:36:23] Shipments count: 1
+[2025-03-15 10:36:23] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:36:23] Shipments count: 1
+[2025-03-15 10:36:23] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:36:23] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:36:24] Viewing invoice ID: 7
+[2025-03-15 10:36:24] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:36:24] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:36:24] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:36:24] Invoice ID: 7
+[2025-03-15 10:36:24] Shipments count: 1
+[2025-03-15 10:36:24] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:36:24] Shipments count: 1
+[2025-03-15 10:36:24] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:36:24] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:36:24] Viewing invoice ID: 7
+[2025-03-15 10:36:24] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:36:24] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:36:24] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:36:24] Invoice ID: 7
+[2025-03-15 10:36:24] Shipments count: 1
+[2025-03-15 10:36:24] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:36:24] Shipments count: 1
+[2025-03-15 10:36:24] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:36:24] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:40:40] Viewing invoice ID: 7
+[2025-03-15 10:40:40] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:40:40] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:40:40] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:40:40] Invoice ID: 7
+[2025-03-15 10:40:40] Shipments count: 1
+[2025-03-15 10:40:40] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:40:40] Shipments count: 1
+[2025-03-15 10:40:40] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:40:40] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:42:28] Viewing invoice ID: 7
+[2025-03-15 10:42:28] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:42:28] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:42:28] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:42:28] Invoice ID: 7
+[2025-03-15 10:42:28] Shipments count: 1
+[2025-03-15 10:42:28] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:28] Shipments count: 1
+[2025-03-15 10:42:28] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:28] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:42:43] Viewing invoice ID: 7
+[2025-03-15 10:42:43] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:42:43] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:42:43] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:42:43] Invoice ID: 7
+[2025-03-15 10:42:43] Shipments count: 1
+[2025-03-15 10:42:43] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:43] Shipments count: 1
+[2025-03-15 10:42:43] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:43] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:42:44] Viewing invoice ID: 7
+[2025-03-15 10:42:44] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:42:44] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:42:44] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:42:44] Invoice ID: 7
+[2025-03-15 10:42:44] Shipments count: 1
+[2025-03-15 10:42:44] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:44] Shipments count: 1
+[2025-03-15 10:42:44] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:44] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:42:44] Viewing invoice ID: 7
+[2025-03-15 10:42:44] Invoice data: 
+Array
+(
+    [id] => 7
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 15:59:16
+    [updated_at] => 2025-03-15 15:59:51
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 10:42:44] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:42:44] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:42:44] Invoice ID: 7
+[2025-03-15 10:42:44] Shipments count: 1
+[2025-03-15 10:42:44] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:44] Shipments count: 1
+[2025-03-15 10:42:44] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:42:44] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 10:43:29] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:43:29] Invoice ID: 7
+[2025-03-15 10:43:29] Shipments count: 1
+[2025-03-15 10:43:29] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:43:31] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:43:31] Invoice ID: 7
+[2025-03-15 10:43:31] Shipments count: 1
+[2025-03-15 10:43:31] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 10:43:47] Viewing invoice ID: 8
+[2025-03-15 10:43:47] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 16:43:47
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 10:43:47] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:43:47] SQL Query: SELECT s.*, is_rel.payment_status 
+                    FROM shipments s 
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                    WHERE is_rel.invoice_id = :invoice_id
+[2025-03-15 10:43:47] Invoice ID: 8
+[2025-03-15 10:43:47] Shipments count: 1
+[2025-03-15 10:43:47] Shipments data: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 10:43:47] Shipments count: 1
+[2025-03-15 10:43:47] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 10:43:47] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => invoiced
+)
+
+[2025-03-15 10:56:48] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:56:48] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 10:56:48] Shipment stats: 
+Array
+(
+    [total] => 0
+    [delivered] => 0
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 10:56:50] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:56:50] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 10:56:50] Shipment stats: 
+Array
+(
+    [total] => 0
+    [delivered] => 0
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 10:57:14] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00492
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 14:22:39
+)
+
+[2025-03-15 10:57:14] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 10:57:14] Shipment stats: 
+Array
+(
+    [total] => 0
+    [delivered] => 0
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 10:58:13] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 10:58:13] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 10:58:13] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 10:58:20] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 10:58:20] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 10:58:20] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 10:58:23] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 10:58:23] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 10:58:23] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 11:02:20] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:02:20] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 11:02:20] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 11:02:21] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:02:21] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 11:02:21] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 11:02:22] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:02:22] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 11:02:22] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 11:02:22] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:02:22] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 11:02:22] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 11:18:31] Viewing invoice ID: 8
+[2025-03-15 11:18:31] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 16:43:47
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 11:18:31] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:18:31] Shipments count: 1
+[2025-03-15 11:18:31] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 11:18:31] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => invoiced
+)
+
+[2025-03-15 11:18:39] Viewing invoice ID: 8
+[2025-03-15 11:18:39] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 16:43:47
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 11:18:39] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:18:39] Shipments count: 1
+[2025-03-15 11:18:39] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 11:18:39] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => invoiced
+)
+
+[2025-03-15 11:18:47] Viewing invoice ID: 8
+[2025-03-15 11:18:47] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 16:43:47
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 11:18:47] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:18:47] Shipments count: 1
+[2025-03-15 11:18:47] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 11:18:47] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => invoiced
+)
+
+[2025-03-15 11:19:06] Customer: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:19:06] Invoices: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 8
+            [invoice_number] => INV-202503-0001
+            [customer_id] => 1
+            [invoice_date] => 2025-03-15
+            [due_date] => 2025-04-14
+            [total_amount] => 450.00
+            [status] => unpaid
+            [payment_date] => 
+            [payment_method] => 
+            [payment_reference] => 
+            [notes] => test
+            [created_at] => 2025-03-15 16:43:47
+            [updated_at] => 2025-03-15 16:43:47
+            [total_shipments] => 1
+            [paid_shipments] => 0
+        )
+
+)
+
+[2025-03-15 11:19:06] Shipment stats: 
+Array
+(
+    [total] => 1
+    [delivered] => 1
+    [in_transit] => 0
+    [pending] => 0
+)
+
+[2025-03-15 11:19:21] Viewing invoice ID: 8
+[2025-03-15 11:19:21] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 16:43:47
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 11:19:21] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:19:21] Shipments count: 1
+[2025-03-15 11:19:21] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 11:19:21] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => invoiced
+)
+
+[2025-03-15 11:30:13] Viewing invoice ID: 8
+[2025-03-15 11:30:13] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 16:43:47
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 11:30:13] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:30:13] Shipments count: 1
+[2025-03-15 11:30:13] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => invoiced
+        )
+
+)
+
+[2025-03-15 11:30:13] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => invoiced
+)
+
+[2025-03-15 11:30:25] Viewing invoice ID: 8
+[2025-03-15 11:30:25] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 11:30:25] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:30:25] Shipments count: 1
+[2025-03-15 11:30:25] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+        )
+
+)
+
+[2025-03-15 11:30:25] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+)
+
+[2025-03-15 11:39:52] Viewing invoice ID: 8
+[2025-03-15 11:39:52] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 11:39:52] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:39:52] Shipments count: 1
+[2025-03-15 11:39:52] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 11:39:52] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 11:42:51] Viewing invoice ID: 8
+[2025-03-15 11:42:51] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 11:42:51] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => 
+    [phone] => 
+    [address] => 
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 16:58:13
+)
+
+[2025-03-15 11:42:51] Shipments count: 1
+[2025-03-15 11:42:51] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 11:42:51] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 13:24:50] Viewing invoice ID: 8
+[2025-03-15 13:24:50] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 13:24:50] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 13:24:50] Shipments count: 1
+[2025-03-15 13:24:50] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 13:24:50] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 13:29:48] Viewing invoice ID: 8
+[2025-03-15 13:29:48] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 13:29:48] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 13:29:48] Shipments count: 1
+[2025-03-15 13:29:48] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 13:29:48] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 13:56:10] Viewing invoice ID: 8
+[2025-03-15 13:56:10] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 13:56:10] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 13:56:10] Shipments count: 1
+[2025-03-15 13:56:10] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 13:56:10] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 14:06:57] Viewing invoice ID: 8
+[2025-03-15 14:06:57] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 14:06:57] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 14:06:57] Shipments count: 1
+[2025-03-15 14:06:57] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 14:06:57] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 14:06:58] Viewing invoice ID: 8
+[2025-03-15 14:06:58] Invoice data: 
+Array
+(
+    [id] => 8
+    [invoice_number] => INV-202503-0001
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 450.00
+    [status] => paid
+    [payment_date] => 2025-03-15
+    [payment_method] => bank transfer
+    [payment_reference] => 
+    [notes] => test
+    [created_at] => 2025-03-15 16:43:47
+    [updated_at] => 2025-03-15 17:30:25
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 1
+)
+
+[2025-03-15 14:06:58] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 14:06:58] Shipments count: 1
+[2025-03-15 14:06:58] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 31
+            [customer_code] => NBB00439
+            [tracking_number] => DKCA17419388666562
+            [lot_id] => 9
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 0852449919
+            [receiver_name] => พชรพล
+            [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+            [receiver_phone] => 0643294662
+            [weight] => 1.00
+            [length] => 13.00
+            [width] => 20.20
+            [height] => 10.20
+            [volumetric_weight] => 0.45
+            [chargeable_weight] => 1.00
+            [price] => 450.00
+            [discount_amount] => 0.00
+            [total_price] => 450.00
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => 
+            [domestic_carrier] => 
+            [handover_date] => 
+            [created_at] => 2025-03-14 14:54:26
+            [updated_at] => 2025-03-15 15:58:28
+            [payment_status] => paid
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 14:06:58] First shipment data: 
+Array
+(
+    [id] => 31
+    [customer_code] => NBB00439
+    [tracking_number] => DKCA17419388666562
+    [lot_id] => 9
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0852449919
+    [receiver_name] => พชรพล
+    [receiver_contact] => ห้องเลขที่ 322/309 อาคาร B ชั้น 18 คอนโด ลุมพินี พาร์ค รัตนาธิเบศร์-งามวงศ์วาน ถนน รัตนาธิเบศร์ ตำบล บางกระสอ อำเภอ เมือง จังหวัด นนทบุรี 11000
+    [receiver_phone] => 0643294662
+    [weight] => 1.00
+    [length] => 13.00
+    [width] => 20.20
+    [height] => 10.20
+    [volumetric_weight] => 0.45
+    [chargeable_weight] => 1.00
+    [price] => 450.00
+    [discount_amount] => 0.00
+    [total_price] => 450.00
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-14 14:54:26
+    [updated_at] => 2025-03-15 15:58:28
+    [payment_status] => paid
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 14:53:12] Viewing invoice ID: 14
+[2025-03-15 14:53:12] Invoice data: 
+Array
+(
+    [id] => 14
+    [invoice_number] => INV-202503-0007
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 1963.50
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 18:18:00
+    [updated_at] => 2025-03-15 18:18:00
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 14:53:12] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 14:53:12] Shipments count: 1
+[2025-03-15 14:53:12] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 47
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120005
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449923
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10234
+            [receiver_phone] => 915599050
+            [weight] => 5.95
+            [length] => 32.50
+            [width] => 27.00
+            [height] => 18.80
+            [volumetric_weight] => 2.75
+            [chargeable_weight] => 5.95
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 1963.50
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-18 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 14:53:12] First shipment data: 
+Array
+(
+    [id] => 47
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120005
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449923
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10234
+    [receiver_phone] => 915599050
+    [weight] => 5.95
+    [length] => 32.50
+    [width] => 27.00
+    [height] => 18.80
+    [volumetric_weight] => 2.75
+    [chargeable_weight] => 5.95
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 1963.50
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-18 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:09:28] Viewing invoice ID: 14
+[2025-03-15 15:09:28] Invoice data: 
+Array
+(
+    [id] => 14
+    [invoice_number] => INV-202503-0007
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 1963.50
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 18:18:00
+    [updated_at] => 2025-03-15 18:18:00
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:09:28] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 15:09:28] Shipments count: 1
+[2025-03-15 15:09:28] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 47
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120005
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449923
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10234
+            [receiver_phone] => 915599050
+            [weight] => 5.95
+            [length] => 32.50
+            [width] => 27.00
+            [height] => 18.80
+            [volumetric_weight] => 2.75
+            [chargeable_weight] => 5.95
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 1963.50
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-18 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:09:28] First shipment data: 
+Array
+(
+    [id] => 47
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120005
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449923
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10234
+    [receiver_phone] => 915599050
+    [weight] => 5.95
+    [length] => 32.50
+    [width] => 27.00
+    [height] => 18.80
+    [volumetric_weight] => 2.75
+    [chargeable_weight] => 5.95
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 1963.50
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-18 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:09:31] Viewing invoice ID: 14
+[2025-03-15 15:09:31] Invoice data: 
+Array
+(
+    [id] => 14
+    [invoice_number] => INV-202503-0007
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 1963.50
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 18:18:00
+    [updated_at] => 2025-03-15 18:18:00
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:09:31] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 15:09:31] Shipments count: 1
+[2025-03-15 15:09:31] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 47
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120005
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449923
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10234
+            [receiver_phone] => 915599050
+            [weight] => 5.95
+            [length] => 32.50
+            [width] => 27.00
+            [height] => 18.80
+            [volumetric_weight] => 2.75
+            [chargeable_weight] => 5.95
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 1963.50
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-18 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:09:31] First shipment data: 
+Array
+(
+    [id] => 47
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120005
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449923
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10234
+    [receiver_phone] => 915599050
+    [weight] => 5.95
+    [length] => 32.50
+    [width] => 27.00
+    [height] => 18.80
+    [volumetric_weight] => 2.75
+    [chargeable_weight] => 5.95
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 1963.50
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-18 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:20:21] Viewing invoice ID: 15
+[2025-03-15 15:20:21] Invoice data: 
+Array
+(
+    [id] => 15
+    [invoice_number] => INV-202503-0008
+    [customer_id] => 2
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 1963.50
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 21:20:21
+    [updated_at] => 2025-03-15 21:20:21
+    [customer_name] => NBB00450
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:20:21] Customer data: 
+Array
+(
+    [id] => 2
+    [name] => NBB00450
+    [code] => NBB00450
+    [email] => 
+    [phone] => 
+    [address] => NBB00450
+    [tax_id] => 
+    [created_at] => 2025-03-15 19:00:57
+    [updated_at] => 2025-03-15 19:00:57
+)
+
+[2025-03-15 15:20:21] Shipments count: 1
+[2025-03-15 15:20:21] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 48
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120006
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449924
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10235
+            [receiver_phone] => 915599051
+            [weight] => 5.95
+            [length] => 32.50
+            [width] => 27.00
+            [height] => 18.80
+            [volumetric_weight] => 2.75
+            [chargeable_weight] => 5.95
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 1963.50
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-19 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:20:21] First shipment data: 
+Array
+(
+    [id] => 48
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120006
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449924
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10235
+    [receiver_phone] => 915599051
+    [weight] => 5.95
+    [length] => 32.50
+    [width] => 27.00
+    [height] => 18.80
+    [volumetric_weight] => 2.75
+    [chargeable_weight] => 5.95
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 1963.50
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-19 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:20:33] Viewing invoice ID: 16
+[2025-03-15 15:20:33] Invoice data: 
+Array
+(
+    [id] => 16
+    [invoice_number] => INV-202503-0009
+    [customer_id] => 2
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 7933.20
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 21:20:33
+    [updated_at] => 2025-03-15 21:20:33
+    [customer_name] => NBB00450
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:20:33] Customer data: 
+Array
+(
+    [id] => 2
+    [name] => NBB00450
+    [code] => NBB00450
+    [email] => 
+    [phone] => 
+    [address] => NBB00450
+    [tax_id] => 
+    [created_at] => 2025-03-15 19:00:57
+    [updated_at] => 2025-03-15 19:00:57
+)
+
+[2025-03-15 15:20:33] Shipments count: 1
+[2025-03-15 15:20:33] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 49
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120007
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449925
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10236
+            [receiver_phone] => 915599052
+            [weight] => 24.04
+            [length] => 37.40
+            [width] => 54.50
+            [height] => 22.30
+            [volumetric_weight] => 7.58
+            [chargeable_weight] => 24.04
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 7933.20
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-20 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:20:33] First shipment data: 
+Array
+(
+    [id] => 49
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120007
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449925
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10236
+    [receiver_phone] => 915599052
+    [weight] => 24.04
+    [length] => 37.40
+    [width] => 54.50
+    [height] => 22.30
+    [volumetric_weight] => 7.58
+    [chargeable_weight] => 24.04
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 7933.20
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-20 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:20:42] Viewing invoice ID: 17
+[2025-03-15 15:20:42] Invoice data: 
+Array
+(
+    [id] => 17
+    [invoice_number] => INV-202503-0010
+    [customer_id] => 1
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 7913.40
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 21:20:42
+    [updated_at] => 2025-03-15 21:20:42
+    [customer_name] => TEST
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:20:42] Customer data: 
+Array
+(
+    [id] => 1
+    [name] => TEST
+    [code] => NBB00439
+    [email] => test@test.com
+    [phone] => test
+    [address] => test
+    [tax_id] => 
+    [created_at] => 2025-03-15 14:22:12
+    [updated_at] => 2025-03-15 18:52:14
+)
+
+[2025-03-15 15:20:42] Shipments count: 1
+[2025-03-15 15:20:42] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 50
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120008
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449926
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10237
+            [receiver_phone] => 915599053
+            [weight] => 23.98
+            [length] => 37.40
+            [width] => 54.50
+            [height] => 22.30
+            [volumetric_weight] => 7.58
+            [chargeable_weight] => 23.98
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 7913.40
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-21 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:20:42] First shipment data: 
+Array
+(
+    [id] => 50
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120008
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449926
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10237
+    [receiver_phone] => 915599053
+    [weight] => 23.98
+    [length] => 37.40
+    [width] => 54.50
+    [height] => 22.30
+    [volumetric_weight] => 7.58
+    [chargeable_weight] => 23.98
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 7913.40
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-21 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:20:47] Viewing invoice ID: 18
+[2025-03-15 15:20:47] Invoice data: 
+Array
+(
+    [id] => 18
+    [invoice_number] => INV-202503-0011
+    [customer_id] => 2
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 7943.10
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 21:20:47
+    [updated_at] => 2025-03-15 21:20:47
+    [customer_name] => NBB00450
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:20:47] Customer data: 
+Array
+(
+    [id] => 2
+    [name] => NBB00450
+    [code] => NBB00450
+    [email] => 
+    [phone] => 
+    [address] => NBB00450
+    [tax_id] => 
+    [created_at] => 2025-03-15 19:00:57
+    [updated_at] => 2025-03-15 19:00:57
+)
+
+[2025-03-15 15:20:47] Shipments count: 1
+[2025-03-15 15:20:47] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 51
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120009
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449927
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10238
+            [receiver_phone] => 915599054
+            [weight] => 24.07
+            [length] => 37.40
+            [width] => 54.50
+            [height] => 22.30
+            [volumetric_weight] => 7.58
+            [chargeable_weight] => 24.07
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 7943.10
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-22 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:20:47] First shipment data: 
+Array
+(
+    [id] => 51
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120009
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449927
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10238
+    [receiver_phone] => 915599054
+    [weight] => 24.07
+    [length] => 37.40
+    [width] => 54.50
+    [height] => 22.30
+    [volumetric_weight] => 7.58
+    [chargeable_weight] => 24.07
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 7943.10
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-22 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-15 15:20:53] Viewing invoice ID: 19
+[2025-03-15 15:20:53] Invoice data: 
+Array
+(
+    [id] => 19
+    [invoice_number] => INV-202503-0012
+    [customer_id] => 2
+    [invoice_date] => 2025-03-15
+    [due_date] => 2025-04-14
+    [total_amount] => 7857.30
+    [status] => unpaid
+    [payment_date] => 
+    [payment_method] => 
+    [payment_reference] => 
+    [notes] => 
+    [created_at] => 2025-03-15 21:20:53
+    [updated_at] => 2025-03-15 21:20:53
+    [customer_name] => NBB00450
+    [total_shipments] => 1
+    [paid_shipments] => 0
+)
+
+[2025-03-15 15:20:53] Customer data: 
+Array
+(
+    [id] => 2
+    [name] => NBB00450
+    [code] => NBB00450
+    [email] => 
+    [phone] => 
+    [address] => NBB00450
+    [tax_id] => 
+    [created_at] => 2025-03-15 19:00:57
+    [updated_at] => 2025-03-15 19:00:57
+)
+
+[2025-03-15 15:20:53] Shipments count: 1
+[2025-03-15 15:20:53] Shipments data from controller: 
+Array
+(
+    [0] => Array
+        (
+            [id] => 53
+            [customer_code] => NBB00027
+            [tracking_number] => DKCA202503120011
+            [lot_id] => 10
+            [group_id] => 
+            [sender_name] => NBB CARGO
+            [sender_contact] => Korea
+            [sender_phone] => 852449929
+            [receiver_name] => ฐิตารีย์
+            [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10240
+            [receiver_phone] => 915599056
+            [weight] => 23.81
+            [length] => 37.40
+            [width] => 54.50
+            [height] => 22.30
+            [volumetric_weight] => 7.58
+            [chargeable_weight] => 23.81
+            [price] => 330.00
+            [discount_amount] => 0.00
+            [total_price] => 7857.30
+            [description] => Cosmetic
+            [status] => delivered
+            [domestic_tracking_number] => DKCA202503120001
+            [domestic_carrier] => lalamove
+            [handover_date] => 2025-03-24 00:00:00
+            [created_at] => 2025-03-14 15:31:47
+            [updated_at] => 2025-03-14 15:38:32
+            [payment_status] => invoiced
+            [origin] => เกาหลี
+            [destination] => ไทย
+        )
+
+)
+
+[2025-03-15 15:20:53] First shipment data: 
+Array
+(
+    [id] => 53
+    [customer_code] => NBB00027
+    [tracking_number] => DKCA202503120011
+    [lot_id] => 10
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 852449929
+    [receiver_name] => ฐิตารีย์
+    [receiver_contact] => เลขที่ 33/182 หมู่บ้านสุขใจวิลเลจ ซ.9 ซ.รามอินทรา65แยก4 แขวงท่าแร้ง เขตบางเขน กรุงเทพฯ 10240
+    [receiver_phone] => 915599056
+    [weight] => 23.81
+    [length] => 37.40
+    [width] => 54.50
+    [height] => 22.30
+    [volumetric_weight] => 7.58
+    [chargeable_weight] => 23.81
+    [price] => 330.00
+    [discount_amount] => 0.00
+    [total_price] => 7857.30
+    [description] => Cosmetic
+    [status] => delivered
+    [domestic_tracking_number] => DKCA202503120001
+    [domestic_carrier] => lalamove
+    [handover_date] => 2025-03-24 00:00:00
+    [created_at] => 2025-03-14 15:31:47
+    [updated_at] => 2025-03-14 15:38:32
+    [payment_status] => invoiced
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
