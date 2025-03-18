@@ -1,11 +1,14 @@
 <?php
-class Shipment {
-    private $db;
+require_once 'models/BaseModel.php';
+require_once 'lib/UlidGenerator.php';
+
+class Shipment extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
-        
+        parent::__construct();
     // เรียกใช้เมธอดเพื่อเพิ่มคอลัมน์ payment_status ถ้ายังไม่มี
     $this->addPaymentStatusColumnIfNotExists();
 }
@@ -180,18 +183,20 @@ class Shipment {
         
         // Calculate shipping price
         $totalPrice = $this->calculateShippingPrice($chargeableWeight, $pricePerKg);
+
+        $data['created_by'] = $this->getCurrentUserId();
         
         $stmt = $this->db->prepare("
             INSERT INTO shipments (
                 id, tracking_number, lot_id, customer_code, sender_name, sender_contact, sender_phone,
                 receiver_name, receiver_contact, receiver_phone, weight, length, width, height,
                 volumetric_weight, chargeable_weight, description, status, 
-                price, total_price, created_at
+                price, total_price, created_at, created_by
             ) VALUES (
                 :id, :tracking_number, :lot_id, :customer_code, :sender_name, :sender_contact, :sender_phone,
                 :receiver_name, :receiver_contact, :receiver_phone, :weight, :length, :width, :height,
                 :volumetric_weight, :chargeable_weight, :description, :status, 
-                :price, :total_price, NOW()
+                :price, :total_price, NOW(), :created_by
             )
         ");
        
@@ -215,6 +220,7 @@ class Shipment {
         $stmt->bindParam(':status', $status);
         $stmt->bindParam(':price', $pricePerKg);
         $stmt->bindParam(':total_price', $totalPrice);
+        $stmt->bindParam(':created_by', $data['created_by']);
        
         $result = $stmt->execute();
         
@@ -459,6 +465,8 @@ class Shipment {
             );
         }
         
+        $data['updated_by'] = $this->getCurrentUserId();
+
         $sql = "UPDATE shipments SET ";
         $updates = [];
         $params = [':id' => $id];
@@ -528,11 +536,12 @@ class Shipment {
         // Update shipment status
         $stmt = $this->db->prepare("
             UPDATE shipments 
-            SET status = :status, updated_at = NOW() 
+            SET status = :status, updated_at = NOW(), updated_by = :updated_by
             WHERE id = :id
         ");
         $stmt->bindParam(':id', $id, PDO::PARAM_STR);
         $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':updated_by', $this->getCurrentUserId());
         $statusUpdateResult = $stmt->execute();
         
         if (!$statusUpdateResult) {
@@ -644,22 +653,14 @@ class Shipment {
                 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
             ";
             $this->db->exec($createTableSql);
-            
-            // Verify table was created
-            $checkTableAgain = $this->db->prepare("SHOW TABLES LIKE 'tracking_history'");
-            $checkTableAgain->execute();
-            if ($checkTableAgain->rowCount() == 0) {
-                error_log('Failed to create tracking_history table');
-                return false;
-            }
         }
         
         // Generate ULID for tracking history entry
         $trackingHistoryId = UlidGenerator::generate();
         
         // Insert tracking history
-        $sql = "INSERT INTO tracking_history (id, shipment_id, status, location, description, timestamp) 
-                VALUES (:id, :shipment_id, :status, :location, :description, NOW())";
+        $sql = "INSERT INTO tracking_history (id, shipment_id, status, location, description, timestamp, created_by) 
+                VALUES (:id, :shipment_id, :status, :location, :description, NOW(), :created_by)";
         
         $stmt = $this->db->prepare($sql);
         
@@ -669,6 +670,7 @@ class Shipment {
         $stmt->bindValue(':status', $status);
         $stmt->bindValue(':location', $location);
         $stmt->bindValue(':description', $description);
+        $stmt->bindValue(':created_by', $this->getCurrentUserId());
         
         $result = $stmt->execute();
         
@@ -902,7 +904,8 @@ class Shipment {
                 $params[':handover_date'] = $handoverDate;
             }
             
-            $sql .= ", updated_at = NOW() WHERE id = :id";
+            $sql .= ", updated_at = NOW(), updated_by = :updated_by WHERE id = :id";
+            $params[':updated_by'] = $this->getCurrentUserId();
             
             $stmt = $this->db->prepare($sql);
             
@@ -927,7 +930,6 @@ class Shipment {
                     $this->addTrackingHistory(
                         $id, 
                         'local_delivery', 
-                        'Local Delivery', 
                         'Shipment handed over to domestic carrier: ' . $carrier . ' with tracking number: ' . $trackingNumber
                     );
                 }
@@ -1057,11 +1059,12 @@ class Shipment {
         try {
             $stmt = $this->db->prepare("
                 UPDATE shipments 
-                SET lot_id = :lot_id, updated_at = NOW() 
+                SET lot_id = :lot_id, updated_at = NOW(), updated_by = :updated_by
                 WHERE id = :id
             ");
             $stmt->bindParam(':id', $id, PDO::PARAM_STR); // เปลี่ยนจาก PDO::PARAM_INT เป็น PDO::PARAM_STR
             $stmt->bindParam(':lot_id', $lotId, PDO::PARAM_STR); // เปลี่ยนจาก PDO::PARAM_INT เป็น PDO::PARAM_STR
+            $stmt->bindParam(':updated_by', $this->getCurrentUserId());
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Update shipment lot error: ' . $e->getMessage());
@@ -1115,9 +1118,10 @@ class Shipment {
                 return false;
             }
             
-            $stmt = $this->db->prepare("UPDATE shipments SET status = :status, updated_at = NOW() WHERE id = :id");
+            $stmt = $this->db->prepare("UPDATE shipments SET status = :status, updated_at = NOW(), updated_by = :updated_by WHERE id = :id");
             $stmt->bindParam(':status', $status);
             $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $stmt->bindParam(':updated_by', $this->getCurrentUserId());
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Update shipment status error: ' . $e->getMessage());

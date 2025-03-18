@@ -2,13 +2,15 @@
 // ไม่ต้อง require Database.php เพราะมี Config.php อยู่แล้ว
 require_once 'debug.php';
 require_once 'lib/UlidGenerator.php';
+require_once 'models/BaseModel.php';
 
-class Invoice {
-    private $db;
+class Invoice extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
+        parent::__construct();
         
         // ตรวจสอบและสร้างตารางที่จำเป็น
         $this->createInvoiceTablesIfNotExist();
@@ -212,8 +214,10 @@ class Invoice {
             // สร้าง ULID สำหรับ invoice ID
             $id = UlidGenerator::generate();
             
-            $sql = "INSERT INTO invoices (id, invoice_number, customer_id, invoice_date, due_date, subtotal, tax_rate, tax_amount, total_amount, status, notes) 
-                    VALUES (:id, :invoice_number, :customer_id, :invoice_date, :due_date, :subtotal, :tax_rate, :tax_amount, :total_amount, :status, :notes)";
+            $data['created_by'] = $this->getCurrentUserId();
+
+            $sql = "INSERT INTO invoices (id, invoice_number, customer_id, invoice_date, due_date, subtotal, tax_rate, tax_amount, total_amount, status, notes, created_by) 
+                    VALUES (:id, :invoice_number, :customer_id, :invoice_date, :due_date, :subtotal, :tax_rate, :tax_amount, :total_amount, :status, :notes, :created_by)";
             
             $stmt = $this->db->prepare($sql);
             $stmt->bindParam(':id', $id);
@@ -227,6 +231,7 @@ class Invoice {
             $stmt->bindParam(':total_amount', $data['total_amount']);
             $stmt->bindParam(':status', $data['status']);
             $stmt->bindParam(':notes', $data['notes']);
+            $stmt->bindParam(':created_by', $data['created_by']);
             
             if ($stmt->execute()) {
                 return $id; // คืนค่า ULID แทน lastInsertId()
@@ -247,78 +252,83 @@ class Invoice {
                 error_log("updateInvoice: No ID provided");
                 return false;
             }
-            
+        
             $id = $data['id'];
-            
+        
             // Debug: แสดงข้อมูลที่จะอัพเดท
             error_log("updateInvoice: Updating invoice ID: " . $id);
             error_log("updateInvoice: Data: " . print_r($data, true));
-            
+        
             // ตรวจสอบว่า customer_id มีอยู่จริงหรือไม่
             if (isset($data['customer_id'])) {
                 $checkSql = "SELECT id FROM customers WHERE id = :customer_id";
                 $checkStmt = $this->db->prepare($checkSql);
                 $checkStmt->bindParam(':customer_id', $data['customer_id']);
                 $checkStmt->execute();
-                
+            
                 if ($checkStmt->rowCount() === 0) {
                     error_log("updateInvoice: Invalid customer_id: " . $data['customer_id']);
                     return false;
                 }
             }
-            
+        
+            // เพิ่ม updated_by ถ้าไม่มี
+            if (!isset($data['updated_by'])) {
+                $data['updated_by'] = $this->getCurrentUserId();
+            }
+        
             // ลบ id ออกจาก data เพื่อไม่ให้อัพเดท
             unset($data['id']);
-            
+        
             // สร้าง SQL สำหรับอัพเดทข้อมูล
             $sql = "UPDATE invoices SET ";
             $params = [];
-            
+        
             foreach ($data as $key => $value) {
                 $sql .= "$key = :$key, ";
                 $params[":$key"] = $value;
             }
-            
+        
             // ตัด comma ตัวสุดท้ายออก
             $sql = rtrim($sql, ", ");
-            
+        
             // เพิ่มเงื่อนไข WHERE
             $sql .= " WHERE id = :id";
             $params[':id'] = $id;
-            
+        
             // Debug: แสดง SQL และ parameters
             error_log("updateInvoice: SQL: " . $sql);
             error_log("updateInvoice: Params: " . print_r($params, true));
-            
+        
             $stmt = $this->db->prepare($sql);
-            
+        
             // Bind parameters
             foreach ($params as $key => $value) {
                 $stmt->bindValue($key, $value);
             }
-            
+        
             $result = $stmt->execute();
-            
+        
             // Debug: แสดงผลลัพธ์การอัพเดท
             error_log("updateInvoice: Update result: " . ($result ? "success" : "failed"));
-            
+        
             // ถ้ามีการอัพเดท shipments
             if ($result && $shipmentIds !== null) {
                 // Debug: แสดงข้อมูล shipmentIds
                 error_log("updateInvoice: Updating shipments for invoice ID: " . $id);
                 error_log("updateInvoice: Shipment IDs: " . print_r($shipmentIds, true));
-                
+            
                 // ลบ shipments เดิมออก
                 $removeResult = $this->removeAllShipmentsFromInvoice($id);
                 error_log("updateInvoice: Remove all shipments result: " . ($removeResult ? "success" : "failed"));
-                
+            
                 // เพิ่ม shipments ใหม่
                 foreach ($shipmentIds as $shipmentId) {
                     $linkResult = $this->linkShipmentToInvoice($id, $shipmentId);
                     error_log("updateInvoice: Link shipment " . $shipmentId . " result: " . ($linkResult ? "success" : "failed"));
                 }
             }
-            
+        
             return $result;
         } catch (PDOException $e) {
             error_log("Error updating invoice: " . $e->getMessage());
@@ -343,26 +353,56 @@ class Invoice {
         }
     }
     
+    // Update the linkShipmentToInvoice method to include created_by
     public function linkShipmentToInvoice($invoiceId, $shipmentId) {
         try {
             // ตรวจสอบว่ามีคอลัมน์ payment_status ในตาราง invoice_shipments หรือไม่
             $hasPaymentStatus = $this->hasPaymentStatusColumn();
             
-            if ($hasPaymentStatus) {
-                // ถ้ามีคอลัมน์ payment_status
+            // ตรวจสอบว่ามีคอลัมน์ created_by ในตาราง invoice_shipments หรือไม่
+            $hasCreatedBy = $this->hasCreatedByColumn();
+            
+            $userId = $this->getCurrentUserId();
+            
+            if ($hasPaymentStatus && $hasCreatedBy) {
+                // ถ้ามีทั้งคอลัมน์ payment_status และ created_by
+                $sql = "INSERT INTO invoice_shipments (invoice_id, shipment_id, payment_status, created_by) 
+                        VALUES (:invoice_id, :shipment_id, 'unpaid', :created_by)
+                        ON DUPLICATE KEY UPDATE payment_status = 'unpaid'";
+                
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':invoice_id', $invoiceId);
+                $stmt->bindParam(':shipment_id', $shipmentId);
+                $stmt->bindParam(':created_by', $userId);
+            } else if ($hasPaymentStatus) {
+                // ถ้ามีเฉพาะคอลัมน์ payment_status
                 $sql = "INSERT INTO invoice_shipments (invoice_id, shipment_id, payment_status) 
                         VALUES (:invoice_id, :shipment_id, 'unpaid')
                         ON DUPLICATE KEY UPDATE payment_status = 'unpaid'";
+                
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':invoice_id', $invoiceId);
+                $stmt->bindParam(':shipment_id', $shipmentId);
+            } else if ($hasCreatedBy) {
+                // ถ้ามีเฉพาะคอลัมน์ created_by
+                $sql = "INSERT INTO invoice_shipments (invoice_id, shipment_id, created_by) 
+                        VALUES (:invoice_id, :shipment_id, :created_by)
+                        ON DUPLICATE KEY UPDATE invoice_id = VALUES(invoice_id)";
+                
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':invoice_id', $invoiceId);
+                $stmt->bindParam(':shipment_id', $shipmentId);
+                $stmt->bindParam(':created_by', $userId);
             } else {
-                // ถ้าไม่มีคอลัมน์ payment_status
+                // ถ้าไม่มีทั้งสองคอลัมน์
                 $sql = "INSERT INTO invoice_shipments (invoice_id, shipment_id) 
                         VALUES (:invoice_id, :shipment_id)
                         ON DUPLICATE KEY UPDATE invoice_id = VALUES(invoice_id)";
+                
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':invoice_id', $invoiceId);
+                $stmt->bindParam(':shipment_id', $shipmentId);
             }
-            
-            $stmt = $this->db->prepare($sql);
-            $stmt->bindParam(':invoice_id', $invoiceId);
-            $stmt->bindParam(':shipment_id', $shipmentId);
             
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -624,6 +664,20 @@ class Invoice {
         }
     }
 
+    // Add new method to check if created_by column exists in invoice_shipments table
+    private function hasCreatedByColumn() {
+        try {
+            $sql = "SHOW COLUMNS FROM invoice_shipments LIKE 'created_by'";
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute();
+            
+            return $stmt->rowCount() > 0;
+        } catch (PDOException $e) {
+            error_log("Error checking created_by column: " . $e->getMessage());
+            return false;
+        }
+    }
+
     // แก้ไขฟังก์ชัน createInvoiceTablesIfNotExist() เพื่อตรวจสอบและแก้ไข foreign key constraint
     private function createInvoiceTablesIfNotExist() {
         try {
@@ -651,78 +705,151 @@ class Invoice {
                     notes TEXT NULL,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    created_by VARCHAR(26) NULL,
+                    updated_by VARCHAR(26) NULL,
                     CONSTRAINT fk_invoice_customer FOREIGN KEY (customer_id) REFERENCES customers(id) ON DELETE RESTRICT ON UPDATE RESTRICT
                 )";
-            
-                $this->db->exec($sql);
-            } else {
-                // ตรวจสอบว่า foreign key constraint ถูกต้องหรือไม่
-                $sql = "SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS 
-                    WHERE TABLE_NAME = 'invoices' 
-                    AND CONSTRAINT_TYPE = 'FOREIGN KEY' 
-                    AND CONSTRAINT_SCHEMA = DATABASE()";
-                $stmt = $this->db->prepare($sql);
-                $stmt->execute();
-                $constraints = $stmt->fetchAll(PDO::FETCH_COLUMN);
-            
-                // ถ้ามี constraint ชื่อ fk_invoice_customer ให้ลบออกและสร้างใหม่
-                if (in_array('fk_invoice_customer', $constraints)) {
-                    $this->db->exec("ALTER TABLE invoices DROP FOREIGN KEY fk_invoice_customer");
-                }
-            
-                // สร้าง constraint ใหม่
-                $this->db->exec("ALTER TABLE invoices ADD CONSTRAINT fk_invoice_customer 
-                            FOREIGN KEY (customer_id) REFERENCES customers(id) 
-                            ON DELETE RESTRICT ON UPDATE RESTRICT");
-            }
         
-            // ตรวจสอบว่าตาราง invoice_shipments มีอยู่หรือไม่
-            $sql = "SHOW TABLES LIKE 'invoice_shipments'";
+            $this->db->exec($sql);
+        } else {
+            // ตรวจสอบว่า foreign key constraint ถูกต้องหรือไม่
+            $sql = "SELECT CONSTRAINT_NAME FROM information_schema.TABLE_CONSTRAINTS 
+                WHERE TABLE_NAME = 'invoices' 
+                AND CONSTRAINT_TYPE = 'FOREIGN KEY' 
+                AND CONSTRAINT_SCHEMA = DATABASE()";
             $stmt = $this->db->prepare($sql);
             $stmt->execute();
+            $constraints = $stmt->fetchAll(PDO::FETCH_COLUMN);
         
-            if ($stmt->rowCount() === 0) {
-                // สร้างตาราง invoice_shipments
-                $sql = "CREATE TABLE IF NOT EXISTS invoice_shipments (
-                    invoice_id VARCHAR(26) NOT NULL,
-                    shipment_id VARCHAR(255) NOT NULL,
-                    payment_status ENUM('paid', 'unpaid') NOT NULL DEFAULT 'unpaid',
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    PRIMARY KEY (invoice_id, shipment_id),
-                    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE,
-                    FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE
-                )";
-            
-                $this->db->exec($sql);
+            // ถ้ามี constraint ชื่อ fk_invoice_customer ให้ลบออกและสร้างใหม่
+            if (in_array('fk_invoice_customer', $constraints)) {
+                $this->db->exec("ALTER TABLE invoices DROP FOREIGN KEY fk_invoice_customer");
             }
         
-            // ตรวจสอบว่าตาราง invoice_additional_charges มีอยู่หรือไม่
-            $sql = "SHOW TABLES LIKE 'invoice_additional_charges'";
-            $stmt = $this->db->prepare($sql);
-            $stmt->execute();
-        
-            if ($stmt->rowCount() === 0) {
-                // สร้างตาราง invoice_additional_charges
-                $sql = "CREATE TABLE IF NOT EXISTS invoice_additional_charges (
-                    id VARCHAR(26) PRIMARY KEY,
-                    invoice_id VARCHAR(26) NOT NULL,
-                    charge_type ENUM('fee', 'discount', 'tax') NOT NULL DEFAULT 'fee',
-                    description VARCHAR(255) NOT NULL,
-                    amount DECIMAL(10, 2) NOT NULL,
-                    is_percentage TINYINT(1) NOT NULL DEFAULT 0,
-                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
-                )";
+            // สร้าง constraint ใหม่
+            $this->db->exec("ALTER TABLE invoices ADD CONSTRAINT fk_invoice_customer 
+                        FOREIGN KEY (customer_id) REFERENCES customers(id) 
+                        ON DELETE RESTRICT ON UPDATE RESTRICT");
             
-                $this->db->exec($sql);
-            }
-        
-            return true;
-        } catch (PDOException $e) {
-            error_log("Error creating invoice tables: " . $e->getMessage());
-            return false;
+            // ตรวจสอบและเพิ่มคอลัมน์ updated_by ถ้ายังไม่มี
+            $this->addUpdatedByColumnIfNotExists();
         }
+    
+        // ตรวจสอบว่าตาราง invoice_shipments มีอยู่หรือไม่
+        $sql = "SHOW TABLES LIKE 'invoice_shipments'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+    
+        if ($stmt->rowCount() === 0) {
+            // สร้างตาราง invoice_shipments
+            $sql = "CREATE TABLE IF NOT EXISTS invoice_shipments (
+                invoice_id VARCHAR(26) NOT NULL,
+                shipment_id VARCHAR(255) NOT NULL,
+                payment_status ENUM('paid', 'unpaid') NOT NULL DEFAULT 'unpaid',
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_by VARCHAR(26) NULL,
+                PRIMARY KEY (invoice_id, shipment_id),
+                FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE,
+                FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE
+            )";
+        
+            $this->db->exec($sql);
+        } else {
+            // ตรวจสอบและเพิ่มคอลัมน์ created_by ในตาราง invoice_shipments ถ้ายังไม่มี
+            $this->addCreatedByColumnToInvoiceShipments();
+        }
+    
+        // ตรวจสอบว่าตาราง invoice_additional_charges มีอยู่หรือไม่
+        $sql = "SHOW TABLES LIKE 'invoice_additional_charges'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+    
+        if ($stmt->rowCount() === 0) {
+            // สร้างตาราง invoice_additional_charges
+            $sql = "CREATE TABLE IF NOT EXISTS invoice_additional_charges (
+                id VARCHAR(26) PRIMARY KEY,
+                invoice_id VARCHAR(26) NOT NULL,
+                charge_type ENUM('fee', 'discount', 'tax') NOT NULL DEFAULT 'fee',
+                description VARCHAR(255) NOT NULL,
+                amount DECIMAL(10, 2) NOT NULL,
+                is_percentage TINYINT(1) NOT NULL DEFAULT 0,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                created_by VARCHAR(26) NULL,
+                FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
+            )";
+        
+            $this->db->exec($sql);
+        } else {
+            // ตรวจสอบและเพิ่มคอลัมน์ created_by ในตาราง invoice_additional_charges ถ้ายังไม่มี
+            $this->addCreatedByColumnToInvoiceCharges();
+        }
+    
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error creating invoice tables: " . $e->getMessage());
+        return false;
     }
 }
-?>
 
+// Add new method to add updated_by column to invoices table if it doesn't exist
+private function addUpdatedByColumnIfNotExists() {
+    try {
+        $sql = "SHOW COLUMNS FROM invoices LIKE 'updated_by'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() === 0) {
+            $sql = "ALTER TABLE invoices ADD COLUMN updated_by VARCHAR(26) NULL";
+            $this->db->exec($sql);
+            error_log("Added updated_by column to invoices table");
+        }
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error adding updated_by column to invoices: " . $e->getMessage());
+        return false;
+    }
+}
+
+// Add new method to add created_by column to invoice_shipments table if it doesn't exist
+private function addCreatedByColumnToInvoiceShipments() {
+    try {
+        $sql = "SHOW COLUMNS FROM invoice_shipments LIKE 'created_by'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() === 0) {
+            $sql = "ALTER TABLE invoice_shipments ADD COLUMN created_by VARCHAR(26) NULL";
+            $this->db->exec($sql);
+            error_log("Added created_by column to invoice_shipments table");
+        }
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error adding created_by column to invoice_shipments: " . $e->getMessage());
+        return false;
+    }
+}
+
+// Add new method to add created_by column to invoice_additional_charges table if it doesn't exist
+private function addCreatedByColumnToInvoiceCharges() {
+    try {
+        $sql = "SHOW COLUMNS FROM invoice_additional_charges LIKE 'created_by'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() === 0) {
+            $sql = "ALTER TABLE invoice_additional_charges ADD COLUMN created_by VARCHAR(26) NULL";
+            $this->db->exec($sql);
+            error_log("Added created_by column to invoice_additional_charges table");
+        }
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error adding created_by column to invoice_additional_charges: " . $e->getMessage());
+        return false;
+    }
+}
+
+}
+?>

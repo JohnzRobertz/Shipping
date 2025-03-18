@@ -1,10 +1,14 @@
 <?php
-class User {
-    private $db;
+require_once 'debug.php';
+require_once 'models/BaseModel.php';
+
+class User extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
+        parent::__construct();
     }
     
     /**
@@ -259,3 +263,4 @@ class User {
     }
 }
 ?>
+

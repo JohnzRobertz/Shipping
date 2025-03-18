@@ -1,37 +1,62 @@
 <?php
 require_once 'debug.php';
 require_once 'lib/UlidGenerator.php';
+require_once 'models/BaseModel.php';
 
-class InvoiceCharge {
-    private $db;
+class InvoiceCharge extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
+        parent::__construct();
         
         // ตรวจสอบและสร้างตารางที่จำเป็น
         $this->createInvoiceChargeTableIfNotExist();
     }
     
-    public function addCharge($data) {
-        try {
-            // Debug: แสดงข้อมูลที่จะเพิ่ม
-            error_log("addCharge: Data: " . print_r($data, true));
+// Update the addCharge method to include created_by
+public function addCharge($data) {
+    try {
+        // Debug: แสดงข้อมูลที่จะเพิ่ม
+        error_log("addCharge: Data: " . print_r($data, true));
+        
+        // สร้าง ULID สำหรับรายการค่าใช้จ่ายเพิ่มเติม
+        $id = isset($data['id']) && !empty($data['id']) ? $data['id'] : UlidGenerator::generate();
+        
+        // เพิ่ม created_by ถ้าไม่มี
+        if (!isset($data['created_by'])) {
+            $data['created_by'] = $this->getCurrentUserId();
+        }
+        
+        // ตรวจสอบว่ามีรายการนี้อยู่แล้วหรือไม่
+        $existingCharge = null;
+        if (isset($data['id']) && !empty($data['id'])) {
+            $existingCharge = $this->getChargeById($data['id']);
+        }
+        
+        if ($existingCharge) {
+            // อัพเดทรายการที่มีอยู่แล้ว
+            return $this->updateCharge($id, $data);
+        } else {
+            // ตรวจสอบว่ามีคอลัมน์ created_by ในตาราง invoice_additional_charges หรือไม่
+            $hasCreatedBy = $this->hasCreatedByColumn();
             
-            // สร้าง ULID สำหรับรายการค่าใช้จ่ายเพิ่มเติม
-            $id = isset($data['id']) && !empty($data['id']) ? $data['id'] : UlidGenerator::generate();
-            
-            // ตรวจสอบว่ามีรายการนี้อยู่แล้วหรือไม่
-            $existingCharge = null;
-            if (isset($data['id']) && !empty($data['id'])) {
-                $existingCharge = $this->getChargeById($data['id']);
-            }
-            
-            if ($existingCharge) {
-                // อัพเดทรายการที่มีอยู่แล้ว
-                return $this->updateCharge($id, $data);
+            if ($hasCreatedBy) {
+                // เพิ่มรายการใหม่พร้อม created_by
+                $sql = "INSERT INTO invoice_additional_charges (id, invoice_id, charge_type, description, amount, is_percentage, created_by) 
+                        VALUES (:id, :invoice_id, :charge_type, :description, :amount, :is_percentage, :created_by)";
+                
+                $stmt = $this->db->prepare($sql);
+                $stmt->bindParam(':id', $id);
+                $stmt->bindParam(':invoice_id', $data['invoice_id']);
+                $stmt->bindParam(':charge_type', $data['charge_type']);
+                $stmt->bindParam(':description', $data['description']);
+                $stmt->bindParam(':amount', $data['amount']);
+                $stmt->bindParam(':is_percentage', $data['is_percentage']);
+                $stmt->bindParam(':created_by', $data['created_by']);
             } else {
-                // เพิ่มรายการใหม่
+                // เพิ่มรายการใหม่โดยไม่มี created_by
                 $sql = "INSERT INTO invoice_additional_charges (id, invoice_id, charge_type, description, amount, is_percentage) 
                         VALUES (:id, :invoice_id, :charge_type, :description, :amount, :is_percentage)";
                 
@@ -42,23 +67,24 @@ class InvoiceCharge {
                 $stmt->bindParam(':description', $data['description']);
                 $stmt->bindParam(':amount', $data['amount']);
                 $stmt->bindParam(':is_percentage', $data['is_percentage']);
-                
-                $result = $stmt->execute();
-                
-                // Debug: แสดงผลลัพธ์การเพิ่มข้อมูล
-                error_log("addCharge: Insert result: " . ($result ? "success" : "failed"));
-                
-                if ($result) {
-                    return $id; // คืนค่า ULID ที่สร้างขึ้น
-                }
-                
-                return false;
             }
-        } catch (PDOException $e) {
-            error_log("Error adding charge: " . $e->getMessage());
+            
+            $result = $stmt->execute();
+            
+            // Debug: แสดงผลลัพธ์การเพิ่มข้อมูล
+            error_log("addCharge: Insert result: " . ($result ? "success" : "failed"));
+            
+            if ($result) {
+                return $id; // คืนค่า ULID ที่สร้างขึ้น
+            }
+            
             return false;
         }
+    } catch (PDOException $e) {
+        error_log("Error adding charge: " . $e->getMessage());
+        return false;
     }
+}
     
     public function getChargesByInvoiceId($invoiceId) {
         try {
@@ -158,6 +184,20 @@ class InvoiceCharge {
         }
     }
     
+// Add new method to check if created_by column exists in invoice_additional_charges table
+private function hasCreatedByColumn() {
+    try {
+        $sql = "SHOW COLUMNS FROM invoice_additional_charges LIKE 'created_by'";
+        $stmt = $this->db->prepare($sql);
+        $stmt->execute();
+        
+        return $stmt->rowCount() > 0;
+    } catch (PDOException $e) {
+        error_log("Error checking created_by column: " . $e->getMessage());
+        return false;
+    }
+}
+    
     // เพิ่มเมธอดสำหรับตรวจสอบและสร้างตารางที่จำเป็น
     private function createInvoiceChargeTableIfNotExist() {
         try {
@@ -176,11 +216,12 @@ class InvoiceCharge {
                     amount DECIMAL(10, 2) NOT NULL,
                     is_percentage TINYINT(1) NOT NULL DEFAULT 0,
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                    created_by VARCHAR(26) NULL,
                     FOREIGN KEY (invoice_id) REFERENCES invoices(id) ON DELETE CASCADE
                 )";
-                
+            
                 $this->db->exec($sql);
-                
+            
                 // สร้าง index สำหรับการค้นหาที่รวดเร็ว
                 $this->db->exec("CREATE INDEX idx_invoice_additional_charges_invoice_id ON invoice_additional_charges(invoice_id)");
             } else {
@@ -189,15 +230,26 @@ class InvoiceCharge {
                 $stmt = $this->db->prepare($sql);
                 $stmt->execute();
                 $idColumn = $stmt->fetch(PDO::FETCH_ASSOC);
-                
+            
                 // ถ้า id ไม่ใช่ VARCHAR(26) ให้ทำการย้ายข้อมูลไปยังตารางใหม่
                 if ($idColumn && strpos($idColumn['Type'], 'char') === false) {
                     // ตารางมีอยู่แล้วแต่ id ไม่ใช่ VARCHAR(26) (ULID)
                     // ให้แจ้งเตือนว่าต้องทำการย้ายข้อมูล
                     error_log("Table invoice_additional_charges exists but id is not VARCHAR(26). Please run the migration script.");
                 }
-            }
             
+                // ตรวจสอบและเพิ่มคอลัมน์ created_by ถ้ายังไม่มี
+                $sql = "SHOW COLUMNS FROM invoice_additional_charges LIKE 'created_by'";
+                $stmt = $this->db->prepare($sql);
+                $stmt->execute();
+            
+                if ($stmt->rowCount() === 0) {
+                    $sql = "ALTER TABLE invoice_additional_charges ADD COLUMN created_by VARCHAR(26) NULL";
+                    $this->db->exec($sql);
+                    error_log("Added created_by column to invoice_additional_charges table");
+                }
+            }
+        
             return true;
         } catch (PDOException $e) {
             error_log("Error creating invoice_additional_charges table: " . $e->getMessage());

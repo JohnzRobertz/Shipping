@@ -1,14 +1,15 @@
 <?php
 require_once 'debug.php';
 require_once 'lib/UlidGenerator.php';
+require_once 'models/BaseModel.php';
 
-class Customer {
-    private $db;
+class Customer extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
-        
+        parent::__construct(); // Call the parent constructor
         // ตรวจสอบและสร้างตารางที่จำเป็น
         $this->createCustomerTablesIfNotExist();
     }
@@ -77,7 +78,7 @@ class Customer {
             // สร้าง ULID สำหรับ customer ID
             $id = UlidGenerator::generate();
             
-            // เตรียมข้อมูลสำหรับการเพิ่ม
+            // Prepare data for insertion
             $customerData = [
                 'id' => $id,
                 'code' => $data['code'] ?? '',
@@ -87,9 +88,11 @@ class Customer {
                 'address' => $data['address'] ?? '',
                 'tax_id' => $data['tax_id'] ?? ''
             ];
+
+            $customerData = $this->addAuditFields($customerData);
             
-            $sql = "INSERT INTO customers (id, code, name, phone, email, address, tax_id) 
-                    VALUES (:id, :code, :name, :phone, :email, :address, :tax_id)";
+            $sql = "INSERT INTO customers (id, code, name, phone, email, address, tax_id, created_by) 
+                    VALUES (:id, :code, :name, :phone, :email, :address, :tax_id, :created_by)";
             
             $stmt = $this->db->prepare($sql);
             
@@ -139,7 +142,9 @@ class Customer {
                     phone = :phone, 
                     email = :email, 
                     address = :address, 
-                    tax_id = :tax_id 
+                    tax_id = :tax_id,
+                    updated_by = :updated_by,
+                    updated_at = NOW()
                     WHERE id = :id";
             
             $stmt = $this->db->prepare($sql);
@@ -152,10 +157,11 @@ class Customer {
             $stmt->bindValue(':email', $data['email'] ?? '');
             $stmt->bindValue(':address', $data['address'] ?? '');
             $stmt->bindValue(':tax_id', $data['tax_id'] ?? '');
+            $stmt->bindValue(':updated_by', $this->getCurrentUserId());
             
             $result = $stmt->execute();
             
-            // Debug: แสดงผลลัพธ์การอัปเดต
+            // Debug: แสดงผลลัพธ์การอัปเดท
             if ($result) {
                 error_log("updateCustomer: Customer updated successfully");
             } else {
@@ -300,4 +306,3 @@ class Customer {
     }
 }
 ?>
-

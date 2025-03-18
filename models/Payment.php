@@ -1,5 +1,5 @@
 <?php
-class Payment {
+class Payment extends BaseModel {
     private $db;
     
     public function __construct() {

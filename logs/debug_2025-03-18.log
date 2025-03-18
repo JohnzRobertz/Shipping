@@ -127,3 +127,90 @@
 [2025-03-18 05:53:14] Unique shipments before adding lot data: 6
 [2025-03-18 05:53:14] Shipments after adding lot data: 6
 [2025-03-18 05:53:14] Final unique shipments count: 6
+[2025-03-18 07:06:55] Raw shipments from SQL: 6
+[2025-03-18 07:06:55] Unique shipments before adding lot data: 6
+[2025-03-18 07:06:55] Shipments after adding lot data: 6
+[2025-03-18 07:06:55] Final unique shipments count: 6
+[2025-03-18 07:07:24] Shipment ID: 06AT70B62QTFM712PXQQ59G200
+[2025-03-18 07:07:24] Shipment data: Array
+(
+    [id] => 06AT70B62QTFM712PXQQ59G200
+    [customer_code] => NBB00027
+    [tracking_number] => DKCS202503170004
+    [lot_id] => 06AT51MYFDNKFXA5QX454EQK00
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0000000
+    [receiver_name] => บริษัท เฟท อิน มี จำกัด
+    [receiver_contact] => เลขที่ 98/3 ถนนอ่อนนุช เขตประเวศ แขวงประเวศ กรุงเทพมหานคร 10250
+    [receiver_phone] => 093-562-2364
+    [weight] => 10.00
+    [length] => 10.00
+    [width] => 10.00
+    [height] => 10.00
+    [volumetric_weight] => 0.17
+    [chargeable_weight] => 10.00
+    [price] => 100.00
+    [discount_amount] => 0.00
+    [total_price] => 1000.00
+    [description] => 100
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 0000-00-00 00:00:00
+    [created_at] => 2025-03-17 16:48:41
+    [created_by] => 
+    [updated_at] => 2025-03-18 11:14:43
+    [updated_by] => 
+    [payment_status] => paid
+    [lot_number] => SEA-202503-002
+    [lot_type] => sea
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-18 07:07:24] Shipment ID: 06AT6R12CN40E58SQVMQKS6500
+[2025-03-18 07:07:24] Shipment data: Array
+(
+    [id] => 06AT6R12CN40E58SQVMQKS6500
+    [customer_code] => NBB00027
+    [tracking_number] => DKCS202503170003
+    [lot_id] => 06AT51MYFDNKFXA5QX454EQK00
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0000000
+    [receiver_name] => บริษัท เฟท อิน มี จำกัด
+    [receiver_contact] => เลขที่ 98/3 ถนนอ่อนนุช เขตประเวศ แขวงประเวศ กรุงเทพมหานคร 10250
+    [receiver_phone] => 093-562-2364
+    [weight] => 10.00
+    [length] => 10.00
+    [width] => 10.00
+    [height] => 10.00
+    [volumetric_weight] => 0.17
+    [chargeable_weight] => 10.00
+    [price] => 100.00
+    [discount_amount] => 0.00
+    [total_price] => 1000.00
+    [description] => 10
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-17 16:12:21
+    [created_by] => 
+    [updated_at] => 2025-03-18 11:14:43
+    [updated_by] => 
+    [payment_status] => paid
+    [lot_number] => SEA-202503-002
+    [lot_type] => sea
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-18 07:07:24] Added charge with ID: 06ATFQ9B1VF359CH07D9S0G700
+[2025-03-18 07:07:52] Added charge with ID: 06ATFQCSWX1JT54M4Y6QPWEB00
+[2025-03-18 07:08:21] Added charge with ID: 06ATFQGA95N3BF91TK4PVJM200
+[2025-03-18 07:16:37] Added charge with ID: 06ATFSCX3D9ETM4JC3JQMP3Z00
+[2025-03-18 07:16:37] Added charge with ID: 06ATFSCX3RPTAKT6TE9BGFZJ00

@@ -1,10 +1,13 @@
 <?php
-class TrackingHistory {
-    private $db;
+require_once 'models/BaseModel.php';
+
+class TrackingHistory extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
+        parent::__construct();
     }
     
     /**
@@ -38,9 +41,12 @@ class TrackingHistory {
             // Check if tracking_history table exists
             $this->ensureTableExists();
             
+            // Add audit fields
+            $data = $this->addAuditFields($data);
+
             // Insert tracking history
-            $sql = "INSERT INTO tracking_history (id, shipment_id, status, location, description, timestamp) 
-                    VALUES (:id, :shipment_id, :status, :location, :description, NOW())";
+            $sql = "INSERT INTO tracking_history (id, shipment_id, status, location, description, timestamp, created_by) 
+                    VALUES (:id, :shipment_id, :status, :location, :description, NOW(), :created_by)";
             
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_STR);
@@ -48,6 +54,7 @@ class TrackingHistory {
             $stmt->bindValue(':status', $data['status']);
             $stmt->bindValue(':location', $location);
             $stmt->bindValue(':description', $description);
+            $stmt->bindValue(':created_by', $data['created_by']);
             
             $result = $stmt->execute();
             
@@ -123,20 +130,16 @@ class TrackingHistory {
                     $updates[] = "$key = :$key";
                     $params[":$key"] = $value;
                 }
-            }
             
-            if (empty($updates)) {
-                error_log('No fields to update for tracking history');
-                return false;
             }
             
             $sql .= implode(', ', $updates);
-            $sql .= " WHERE id = :id";
-            
+            $sql .= " , updated_at = NOW(), updated_by = :updated_by WHERE id = :id";
             $stmt = $this->db->prepare($sql);
-            foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
-            }
+    
+            // Bind parameters
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $stmt->bindParam(':updated_by', $this->getCurrentUserId(), PDO::PARAM_INT);
             
             return $stmt->execute();
         } catch (PDOException $e) {

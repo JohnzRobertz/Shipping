@@ -1,12 +1,14 @@
 <?php
 require_once 'lib/UlidGenerator.php';
+require_once 'models/BaseModel.php';
 
-class Lot {
-    private $db;
+class Lot extends BaseModel {
+    protected $db;
     
     public function __construct() {
         global $db;
         $this->db = $db;
+        parent::__construct();
     }
     
     /**
@@ -65,13 +67,15 @@ class Lot {
             // Generate ULID for new record
             $id = UlidGenerator::generate();
             
+            $data['created_by'] = $this->getCurrentUserId();
+            
             $stmt = $this->db->prepare("
                 INSERT INTO lots (
                     id, lot_number, lot_type, departure_date, arrival_date, 
-                    origin, destination, status, created_at
+                    origin, destination, status, created_at, created_by
                 ) VALUES (
                     :id, :lot_number, :lot_type, :departure_date, :arrival_date,
-                    :origin, :destination, :status, NOW()
+                    :origin, :destination, :status, NOW(), :created_by
                 )
             ");
             
@@ -88,6 +92,7 @@ class Lot {
             $stmt->bindParam(':origin', $data['origin']);
             $stmt->bindParam(':destination', $data['destination']);
             $stmt->bindParam(':status', $data['status']);
+            $stmt->bindParam(':created_by', $data['created_by']);
             
             $stmt->execute();
             return $id; // Return the ULID instead of lastInsertId()
@@ -259,7 +264,8 @@ class Lot {
             }
             
             $sql .= implode(', ', $updates);
-            $sql .= ", updated_at = NOW() WHERE id = :id";
+            $sql .= ", updated_at = NOW(), updated_by = :updated_by WHERE id = :id";
+            $params[':updated_by'] = $this->getCurrentUserId();
             
             $stmt = $this->db->prepare($sql);
             
@@ -329,11 +335,12 @@ class Lot {
             
             $stmt = $this->db->prepare("
                 UPDATE lots 
-                SET status = :status, updated_at = NOW() 
+                SET status = :status, updated_at = NOW(), updated_by = :updated_by
                 WHERE id = :id
             ");
             $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':updated_by', $this->getCurrentUserId());
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Update lot status error: ' . $e->getMessage());
@@ -364,11 +371,12 @@ class Lot {
             // First, update the lot status
             $stmt = $this->db->prepare("
                 UPDATE lots 
-                SET status = :status, updated_at = NOW() 
+                SET status = :status, updated_at = NOW(), updated_by = :updated_by
                 WHERE id = :id
             ");
             $stmt->bindValue(':id', $id, PDO::PARAM_STR);
             $stmt->bindValue(':status', $status);
+            $stmt->bindValue(':updated_by', $this->getCurrentUserId());
             $lotUpdateResult = $stmt->execute();
             
             if (!$lotUpdateResult) {
@@ -386,11 +394,12 @@ class Lot {
             // Update all shipments in this lot
             $stmt = $this->db->prepare("
                 UPDATE shipments 
-                SET status = :status, updated_at = NOW() 
+                SET status = :status, updated_at = NOW(), updated_by = :updated_by
                 WHERE lot_id = :lot_id
             ");
             $stmt->bindValue(':lot_id', $id, PDO::PARAM_STR);
             $stmt->bindValue(':status', $shipmentStatus);
+            $stmt->bindValue(':updated_by', $this->getCurrentUserId());
             $shipmentsUpdateResult = $stmt->execute();
             
             if (!$shipmentsUpdateResult) {
@@ -673,4 +682,3 @@ class Lot {
     }
 }
 ?>
-
