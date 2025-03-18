@@ -2,7 +2,8 @@
 require_once 'models/Customer.php';
 require_once 'models/Shipment.php';
 require_once 'models/Invoice.php';
-require_once 'config/Database.php';
+// แก้ไขจาก Database.php เป็น database.php
+require_once 'config/database.php';
 
 class CustomerController {
     private $customerModel;

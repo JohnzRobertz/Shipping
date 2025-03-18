@@ -18,6 +18,30 @@ function isAdmin() {
 }
 
 /**
+ * Get current user ID with fallback to SYSTEM
+ * 
+ * @return string User ID or SYSTEM if not logged in
+ */
+function getCurrentUserId() {
+    if (session_status() === PHP_SESSION_NONE) {
+        session_start();
+    }
+    
+    // Debug session data
+    error_log('Session data in getCurrentUserId: ' . json_encode($_SESSION));
+    
+    // Return user ID from session if available
+    if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+        error_log('Returning user ID from session: ' . $_SESSION['user_id']);
+        return $_SESSION['user_id'];
+    }
+    
+    // If no user ID in session, return SYSTEM as fallback
+    error_log('No user ID in session, returning SYSTEM as fallback');
+    return 'SYSTEM';
+}
+
+/**
  * Require login to access page
  * 
  * @return void Redirects to login page if not logged in

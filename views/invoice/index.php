@@ -132,7 +132,7 @@
                                     <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
                                         <?= __('total_invoices') ?>
                                     </div>
-                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['total_invoices']) ?></div>
+                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['total_invoices'] ?? 0) ?></div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-file-earmark-text fa-2x text-gray-300"></i>
@@ -149,7 +149,7 @@
                                     <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
                                         <?= __('paid_invoices') ?>
                                     </div>
-                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['paid_invoices']) ?></div>
+                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['paid_invoices'] ?? 0) ?></div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-check-circle fa-2x text-gray-300"></i>
@@ -166,7 +166,7 @@
                                     <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
                                         <?= __('unpaid_invoices') ?>
                                     </div>
-                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['unpaid_invoices']) ?></div>
+                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['unpaid_invoices'] ?? 0) ?></div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-exclamation-circle fa-2x text-gray-300"></i>
@@ -183,7 +183,7 @@
                                     <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                                         <?= __('overdue_invoices') ?>
                                     </div>
-                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['overdue_invoices']) ?></div>
+                                    <div class="h5 mb-0 font-weight-bold"><?= number_format($stats['overdue_invoices'] ?? 0) ?></div>
                                 </div>
                                 <div class="col-auto">
                                     <i class="bi bi-calendar-x fa-2x text-gray-300"></i>
@@ -202,7 +202,7 @@
                                 <h5 class="card-title"><?= __('total_amount') ?></h5>
                                 <i class="bi bi-cash-stack text-muted"></i>
                             </div>
-                            <p class="card-text display-6"><?= number_format($stats['total_amount'], 2) ?></p>
+                            <p class="card-text display-6"><?= number_format($stats['total_amount'] ?? 0, 2) ?></p>
                         </div>
                     </div>
                 </div>
@@ -213,7 +213,7 @@
                                 <h5 class="card-title"><?= __('paid_amount') ?></h5>
                                 <i class="bi bi-cash-coin text-success"></i>
                             </div>
-                            <p class="card-text display-6"><?= number_format($stats['paid_amount'], 2) ?></p>
+                            <p class="card-text display-6"><?= number_format($stats['paid_amount'] ?? 0, 2) ?></p>
                         </div>
                     </div>
                 </div>
@@ -224,7 +224,7 @@
                                 <h5 class="card-title"><?= __('unpaid_amount') ?></h5>
                                 <i class="bi bi-cash text-warning"></i>
                             </div>
-                            <p class="card-text display-6"><?= number_format($stats['unpaid_amount'], 2) ?></p>
+                            <p class="card-text display-6"><?= number_format($stats['unpaid_amount'] ?? 0, 2) ?></p>
                         </div>
                     </div>
                 </div>

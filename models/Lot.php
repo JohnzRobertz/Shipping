@@ -1,6 +1,7 @@
 <?php
 require_once 'lib/UlidGenerator.php';
 require_once 'models/BaseModel.php';
+require_once 'models/TrackingHistory.php';
 
 class Lot extends BaseModel {
     protected $db;
@@ -452,36 +453,31 @@ class Lot extends BaseModel {
             
             error_log('Location determined: ' . $location);
             
+            // ใช้ TrackingHistory model แทนการ insert โดยตรง
+            $trackingHistoryModel = new TrackingHistory();
+            
             // Add tracking history for each shipment
             foreach ($shipments as $shipment) {
                 $shipmentId = $shipment['id'];
                 
                 error_log('Adding tracking history for shipment: ' . $shipmentId);
                 
-                // Generate ULID for tracking history entry
-                $trackingHistoryId = UlidGenerator::generate();
-                
                 // Add description based on status
                 $description = "Status updated to " . $shipmentStatus . " (Lot status: " . $status . ")";
                 
-                // Insert tracking history
-                $stmt = $this->db->prepare("
-                    INSERT INTO tracking_history (
-                        id, shipment_id, status, location, description, timestamp
-                    ) VALUES (
-                        :id, :shipment_id, :status, :location, :description, NOW()
-                    )
-                ");
-                $stmt->bindValue(':id', $trackingHistoryId, PDO::PARAM_STR);
-                $stmt->bindValue(':shipment_id', $shipmentId, PDO::PARAM_STR);
-                $stmt->bindValue(':status', $shipmentStatus);
-                $stmt->bindValue(':location', $location);
-                $stmt->bindValue(':description', $description);
+                // สร้างข้อมูลสำหรับ tracking history
+                $trackingData = [
+                    'shipment_id' => $shipmentId,
+                    'status' => $shipmentStatus,
+                    'location' => $location,
+                    'description' => $description
+                ];
                 
-                $historyResult = $stmt->execute();
+                // เรียกใช้เมธอด create ของ TrackingHistory
+                $historyResult = $trackingHistoryModel->create($trackingData);
                 
                 if (!$historyResult) {
-                    error_log('Failed to add tracking history for shipment: ' . $shipmentId . '. Error: ' . json_encode($stmt->errorInfo()));
+                    error_log('Failed to add tracking history for shipment: ' . $shipmentId);
                     // Continue with other shipments even if one fails
                 }
             }
@@ -682,3 +678,4 @@ class Lot extends BaseModel {
     }
 }
 ?>
+

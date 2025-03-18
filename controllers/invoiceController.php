@@ -118,8 +118,7 @@ class InvoiceController {
                 c.name as customer_name, c.code as customer_code 
             FROM shipments s 
             JOIN customers c ON s.customer_code = c.code 
-            WHERE s.status = 'delivered' 
-            AND s.id NOT IN (SELECT shipment_id FROM invoice_shipments)
+            WHERE  s.id NOT IN (SELECT shipment_id FROM invoice_shipments)
             ORDER BY s.created_at DESC";
 
         $stmt = $db->prepare($sql);

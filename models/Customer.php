@@ -67,16 +67,21 @@ class Customer extends BaseModel {
     
     public function createCustomer($data) {
         try {
+            // Debug log
+            error_log("Creating customer with data: " . print_r($data, true));
+            
             // ตรวจสอบว่ามีรหัสลูกค้านี้อยู่แล้วหรือไม่
             if (!empty($data['code'])) {
                 $existingCustomer = $this->getCustomerByCode($data['code']);
                 if ($existingCustomer) {
+                    error_log("Customer code already exists: " . $data['code']);
                     return false; // มีรหัสลูกค้านี้อยู่แล้ว
                 }
             }
             
             // สร้าง ULID สำหรับ customer ID
             $id = UlidGenerator::generate();
+            error_log("Generated ULID: " . $id);
             
             // Prepare data for insertion
             $customerData = [
@@ -86,28 +91,45 @@ class Customer extends BaseModel {
                 'phone' => $data['phone'] ?? '',
                 'email' => $data['email'] ?? '',
                 'address' => $data['address'] ?? '',
-                'tax_id' => $data['tax_id'] ?? ''
+                'tax_id' => $data['tax_id'] ?? '',
+                'created_at' => date('Y-m-d H:i:s'),
+                'updated_at' => date('Y-m-d H:i:s'),
+                'created_by' => isset($_SESSION['user_id']) ? $_SESSION['user_id'] : null
             ];
 
-            $customerData = $this->addAuditFields($customerData);
+            // Debug log
+            error_log("Prepared customer data: " . print_r($customerData, true));
             
-            $sql = "INSERT INTO customers (id, code, name, phone, email, address, tax_id, created_by) 
-                    VALUES (:id, :code, :name, :phone, :email, :address, :tax_id, :created_by)";
+            $sql = "INSERT INTO customers (
+                    id, code, name, phone, email, address, tax_id, 
+                    created_at, updated_at, created_by
+                ) VALUES (
+                    :id, :code, :name, :phone, :email, :address, :tax_id,
+                    :created_at, :updated_at, :created_by
+                )";
             
             $stmt = $this->db->prepare($sql);
             
             // Bind parameters
             foreach ($customerData as $key => $value) {
-                $stmt->bindValue(":$key", $value);
+                $type = is_null($value) ? PDO::PARAM_NULL : PDO::PARAM_STR;
+                $stmt->bindValue(":$key", $value, $type);
             }
             
-            if ($stmt->execute()) {
-                return $id; // คืนค่า ULID แทน lastInsertId()
+            // Execute and check result
+            $result = $stmt->execute();
+            
+            if ($result) {
+                error_log("Customer created successfully with ID: " . $id);
+                return $id;
+            } else {
+                error_log("Failed to create customer. Error info: " . print_r($stmt->errorInfo(), true));
+                return false;
             }
             
-            return false;
         } catch (PDOException $e) {
             error_log("Error creating customer: " . $e->getMessage());
+            error_log("Stack trace: " . $e->getTraceAsString());
             return false;
         }
     }
@@ -292,10 +314,13 @@ class Customer extends BaseModel {
                     address TEXT,
                     tax_id VARCHAR(20),
                     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
-                )";
+                    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                    created_by VARCHAR(26),
+                    updated_by VARCHAR(26)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci";
                 
                 $this->db->exec($sql);
+                error_log("Created customers table");
             }
             
             return true;
@@ -306,3 +331,4 @@ class Customer extends BaseModel {
     }
 }
 ?>
+

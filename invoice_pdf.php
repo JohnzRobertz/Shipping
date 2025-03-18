@@ -105,11 +105,11 @@ $texts = [
     'en' => [
         'invoice' => 'INVOICE',
         'company_name' => 'Shipping Express Co., Ltd.',
-        'company_address' => '123 Sukhumvit Road',
-        'company_city_country' => 'Bangkok 10110, Thailand',
-        'company_phone' => 'Tel: 02-123-4567',
-        'company_email' => 'Email: info@shipping-express.com',
-        'tax_id' => 'Tax ID: 0123456789012',
+        'company_address' => '163/102 Moo 1, Pimonrat Sub-district Bang Bua Thong District',
+        'company_city_country' => 'Nonthaburi 11110, Thailand',
+        'company_phone' => 'Tel: 0852449919',
+        'company_email' => 'Email:',
+        'tax_id' => 'Tax ID: 0991028589508',
         'invoice_no' => 'Invoice No:',
         'date' => 'Date:',
         'due_date' => 'Due Date:',
@@ -121,9 +121,9 @@ $texts = [
         'phone' => 'Phone:',
         'email' => 'Email:',
         'payment_info' => 'PAYMENT INFORMATION:',
-        'bank' => 'Bank: Bangkok Bank',
-        'account_name' => 'Account Name: Shipping Express Co., Ltd.',
-        'account_number' => 'Account Number: 123-4-56789-0',
+        'bank' => 'Bank: KASIKORNBANK(KBANK)',
+        'account_name' => 'Account Name: Mr. DAE-UK CHOI',
+        'account_number' => 'Account Number: 200-134-2358',
         'reference' => 'Reference:',
         'tracking_number' => 'Tracking No.',
         'description' => 'Description',
@@ -151,12 +151,12 @@ $texts = [
     ],
     'th' => [
         'invoice' => 'ใบแจ้งหนี้',
-        'company_name' => 'บริษัท ขนส่งทันใจ จำกัด',
-        'company_address' => '123 ถนนสุขุมวิท',
-        'company_city_country' => 'กรุงเทพฯ 10110 ประเทศไทย',
-        'company_phone' => 'โทร: 02-123-4567',
-        'company_email' => 'อีเมล: info@shipping-express.com',
-        'tax_id' => 'เลขประจำตัวผู้เสียภาษี: 0123456789012',
+        'company_name' => 'Mr. DAE-UK CHOI',
+        'company_address' => ' 163/102  หมู่ที่ 1 ตําบลพิมลราช อําเภอบางบัวทอง',
+        'company_city_country' => 'จังหวัดนนทบุรี 11110 ประเทศไทย',
+        'company_phone' => 'โทร: 0852449919',
+        'company_email' => 'อีเมล:',
+        'tax_id' => 'เลขประจำตัวผู้เสียภาษี: 0991028589508',
         'invoice_no' => 'เลขที่ใบแจ้งหนี้:',
         'date' => 'วันที่:',
         'due_date' => 'วันครบกำหนด:',
@@ -168,9 +168,9 @@ $texts = [
         'phone' => 'โทรศัพท์:',
         'email' => 'อีเมล:',
         'payment_info' => 'ข้อมูลการชำระเงิน:',
-        'bank' => 'ธนาคาร: ธนาคารกรุงเทพ',
-        'account_name' => 'ชื่อบัญชี: บริษัท ขนส่งทันใจ จำกัด',
-        'account_number' => 'เลขที่บัญชี: 123-4-56789-0',
+        'bank' => 'ธนาคาร: ธนาคารกสิกรไทย',
+        'account_name' => 'ชื่อบัญชี: บริษัท Mr. DAE-UK CHOI',
+        'account_number' => 'เลขที่บัญชี: 200-134-2358',
         'reference' => 'อ้างอิง:',
         'tracking_number' => 'เลขติดตาม',
         'description' => 'รายละเอียด',
@@ -529,32 +529,59 @@ $pdf->Cell(90, 5, '', 0, 0);
 $pdf->Cell(10, 5, '', 0, 0);
 $pdf->Cell(90, 5, '', 0, 1);
 
-// ตรวจสอบว่ามีไฟล์รูปลายเซ็นหรือไม่
-if (file_exists($signatureImagePath)) {
-    try {
-        // คำนวณความกว้างของรูปลายเซ็นให้พอดีกับพื้นที่ (ไม่เกิน 80)
+// // ตรวจสอบว่ามีไฟล์รูปลายเซ็นหรือไม่
+// if (file_exists($signatureImagePath)) {
+//     try {
+//         // คำนวณความกว้างของรูปลายเซ็นให้พอดีกับพื้นที่ (ไม่เกิน 80)
+//         $signatureWidth = 40; // ปรับตามความเหมาะสม
+        
+//         // ตำแหน่ง X ของรูปลายเซ็น (กึ่งกลางของพื้นที่ 90)
+//         $signatureX = 10 + (90 - $signatureWidth) / 2;
+        
+//         // แสดงรูปลายเซ็น - ระบุชนิดไฟล์เป็น JPEG
+//         $pdf->Image($signatureImagePath, $signatureX, $startY, $signatureWidth, 0, 'JPEG');
+        
+//         // เลื่อนตำแหน่ง Y ให้พ้นรูปลายเซ็น
+//         $pdf->SetY($startY + $signatureHeight);
+//     } catch (Exception $e) {
+//         // ถ้าเกิด error ให้แสดงเส้นสำหรับเซ็นแทน
+//         $pdf->Cell(90, 0, '', 'T', 0);
+//         $pdf->Cell(10, 0, '', 0, 0);
+//         $pdf->Cell(90, 0, '', 'T', 1);
+//     }
+// } else {
+//     // ถ้าไม่พบไฟล์รูปลายเซ็น ให้แสดงเส้นสำหรับเซ็น
+//     $pdf->Cell(90, 0, '', 'T', 0);
+//     $pdf->Cell(10, 0, '', 0, 0);
+//     $pdf->Cell(90, 0, '', 'T', 1);
+// }
+
+// ฝังรูปภาพลายเซ็นเป็น Base64 (ตัวอย่าง)
+$signatureBase64 = 'data:image/jpeg;base64,/9j/4AAQSkZJRgABAQEAwADAAAD/4QKqRXhpZgAATU0AKgAAAAgACAESAAMAAAABAAEAAAMBAAUAAAABAAABegMDAAEAAAABAAAAAFEQAAEAAAABAQAAAFERAAQAAAABAAAdhlESAAQAAAABAAAdhodpAAQAAAABAAABguocAAcAAAEMAAAAbgAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAGGoAAAsY8AAeocAAcAAAEMAAABlAAAAAAc6gAAAAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/4QHdaHR0cDovL25zLmFkb2JlLmNvbS94YXAvMS4wLwA8P3hwYWNrZXQgYmVnaW49J++7vycgaWQ9J1c1TTBNcENlaGlIenJlU3pOVGN6a2M5ZCc/Pg0KPHg6eG1wbWV0YSB4bWxuczp4PSJhZG9iZTpuczptZXRhLyI+PHJkZjpSREYgeG1sbnM6cmRmPSJodHRwOi8vd3d3LnczLm9yZy8xOTk5LzAyLzIyLXJkZi1zeW50YXgtbnMjIi8+PC94OnhtcG1ldGE+DQogICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgCiAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAKICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgICAgPD94cGFja2V0IGVuZD0ndyc/Pv/bAEMAAgEBAgEBAgICAgICAgIDBQMDAwMDBgQEAwUHBgcHBwYHBwgJCwkICAoIBwcKDQoKCwwMDAwHCQ4PDQwOCwwMDP/bAEMBAgICAwMDBgMDBgwIBwgMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDP/AABEIAKIBcgMBIgACEQEDEQH/xAAfAAABBQEBAQEBAQAAAAAAAAAAAQIDBAUGBwgJCgv/xAC1EAACAQMDAgQDBQUEBAAAAX0BAgMABBEFEiExQQYTUWEHInEUMoGRoQgjQrHBFVLR8CQzYnKCCQoWFxgZGiUmJygpKjQ1Njc4OTpDREVGR0hJSlNUVVZXWFlaY2RlZmdoaWpzdHV2d3h5eoOEhYaHiImKkpOUlZaXmJmaoqOkpaanqKmqsrO0tba3uLm6wsPExcbHyMnK0tPU1dbX2Nna4eLj5OXm5+jp6vHy8/T19vf4+fr/xAAfAQADAQEBAQEBAQEBAAAAAAAAAQIDBAUGBwgJCgv/xAC1EQACAQIEBAMEBwUEBAABAncAAQIDEQQFITEGEkFRB2FxEyIygQgUQpGhscEJIzNS8BVictEKFiQ04SXxFxgZGiYnKCkqNTY3ODk6Q0RFRkdISUpTVFVWV1hZWmNkZWZnaGlqc3R1dnd4eXqCg4SFhoeIiYqSk5SVlpeYmZqio6Slpqeoqaqys7S1tre4ubrCw8TFxsfIycrS09TV1tfY2dri4+Tl5ufo6ery8/T19vf4+fr/2gAMAwEAAhEDEQA/AP38ooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKpQeJNOutdn0uO/s5NSto1mmtFmUzRIxwGZM5APYkV5v+1Z+09a/s5+FrGK00+48ReMfEs4sPD2hWrD7RqVwcZPP3Y0B3O3ZQa8O/Yy/YZ8Wfs8ftseMPiH4g16816f4g+H0bVJZWMkcF4JwwijY9ERPlAwBgV0QoJ03Obt28wPsasvxh420b4faFNqmvatp2i6bbjMt1fXKW8MY92YgCvNP2qv2vtH/ZtsbDTYLW48SeOPELiDRPDlhh7y9YnaZCuflhTqzngAV5b8S/2FNC+PXgWz8UftJ6u+vpoGdXudLivHtNEsgo3bZEUjzVQDHzHBI70U6Csp1HZP736ID6b8E+PdE+JXh6HVvD2r6drel3H+qurG4WeF/oykitavlj/glV8PrLw18NvGWvaDo8nhzwb4s8QzXnhzTSSFjskAjSUKc4Em0sOemK+p6ivTUKjhF3SAKKKKyAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACsH4n/ErRvg78P9W8T+ILxLHR9FtnurqZhnaqjOAByWPQAckkVuSyrBE0jsqIgLMzHAUDqTXyXpKSf8FI/jYNQuEaX4FeA70NYIcqni7VYWIMp/v2sJyAOjuM9BW1GmpPmlpFb/5LzYGr+xr8Pda+PPxFvPj54+sjb32rxNbeCNLmU7tC0duRIyn7s84wz9wMCvQ/2s/2qbf9nfQNP0/S7F/E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n4x/aBnutF+AXhdtVlhfZN4q16F7XQ4BnBMRxunYccKMV5X+0N/wSK8a/tKfCjxBceNfi94i8S+O7m2LaXax3D2OhWcw5CiFeSpxjJyRX3hp2m2+j2ENraQQ21tboEiiiQIkajoABwBU1EMW6b/cq34v7/8AKwHxZ4B/bi8f/slfDvw94c+LnwU8cQW2h2MOnvr3hlRrlo6xRhPNdUPmLkLnoTXtvwc/4KDfB346xoug+O9DW8frY38wsbxDkjDRS7WB46Yr2brXn3xZ/ZS+G3x0s5IPFvgnw5rqy8s9xZIZM+ocAMD9DSdSjPWUbPyf6P8AzA7uxv4NTtlmtp4biF/uvE4dT9COKkjlWVcoysMkZBzyK+Q7/wD4JUN8Jbie++BvxO8Z/C+5Ks0emvdNqmkFyO8ExbavThTxjivdv2S/hr4u+EnwI0fQ/Hev2nifxVbtNJf6lbQmGK5eSV3yF7cMBWdSnBLmhK/laz/y/ED0iiiisQCiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACiiigAooooAKKKKACvHP2of2pG+EGoaR4T8MWC+I/iL4rfydK0tTlbZTwbu4xysCHqe+MZr2OvmD46/wDBPrxB8Qf2nLz4peD/AIqax4F13UNLi0iUQ6dDeCKFDk+X5nCbuM4H41vhlT5/3r0/Xz8gOr8BeCfC37I+ial41+InifTJ/GGtgS6vrd9Kse9u0FurcrEvAVF64FZKftK+Nv2ld1h8K/D11oulyHEvinX7VobdEPU28R5lfHTOB61f+G3/AAT58KaDqttrXjXUta+KHie3ww1LxHOZ1jb1jgH7pB+Br3mGFLeJUjVURBhVUYCj0ArSdWmnde9Lv0+S/r0EeZ/BP9lXw98Hr6fV5pbvxN4rvm33eu6swnu3buIyeIk/2UwPrXp1FFc05ym+aTGfDnxl/Zi/aF8Xft+N8QrW0+H/AIh8KaHB9m8M2ur3sqQaYGHzzPCqndLk8MOmODXulj+zN4m+K1uknxX8Urq8fU6NoivZab9HyS8g+pr2+iuieLm1FJJWVtEBm+E/Buk+A9Eh03RdNstKsIBhILWFYkX8AOvvWlRRXK3fVgFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAFFFFABRRRQAUUUUAf/2Q=='; // ใส่ข้อมูล Base64 ของรูปภาพลายเซ็น
+
         $signatureWidth = 40; // ปรับตามความเหมาะสม
         
         // ตำแหน่ง X ของรูปลายเซ็น (กึ่งกลางของพื้นที่ 90)
         $signatureX = 10 + (90 - $signatureWidth) / 2;
         
         // แสดงรูปลายเซ็น - ระบุชนิดไฟล์เป็น JPEG
-        $pdf->Image($signatureImagePath, $signatureX, $startY, $signatureWidth, 0, 'JPEG');
+       // $pdf->Image('@'.base64_decode($signatureBase64), $signatureX, $startY, $signatureWidth, 0, 'JPEG');
         
+            // ตัด prefix 'data:image/jpeg;base64,' ออกก่อน
+        $base64Data = preg_replace('#^data:image/\w+;base64,#i', '', $signatureBase64);
+
+        // Decode ข้อมูลภาพอย่างถูกต้อง
+        $imageBinary = base64_decode($base64Data);
+
+        // แสดงรูปลายเซ็น - ระบุชนิดไฟล์เป็น JPEG
+        $pdf->Image('@'.$imageBinary, $signatureX, $startY, $signatureWidth, 0, 'JPEG');
+
+
+
         // เลื่อนตำแหน่ง Y ให้พ้นรูปลายเซ็น
         $pdf->SetY($startY + $signatureHeight);
-    } catch (Exception $e) {
-        // ถ้าเกิด error ให้แสดงเส้นสำหรับเซ็นแทน
-        $pdf->Cell(90, 0, '', 'T', 0);
-        $pdf->Cell(10, 0, '', 0, 0);
-        $pdf->Cell(90, 0, '', 'T', 1);
-    }
-} else {
-    // ถ้าไม่พบไฟล์รูปลายเซ็น ให้แสดงเส้นสำหรับเซ็น
-    $pdf->Cell(90, 0, '', 'T', 0);
-    $pdf->Cell(10, 0, '', 0, 0);
-    $pdf->Cell(90, 0, '', 'T', 1);
-}
+
+
 
 // ข้อความใต้ลายเซ็น
 $pdf->Cell(90, 5, $texts[$language]['authorized_signature'], 0, 0, 'C');

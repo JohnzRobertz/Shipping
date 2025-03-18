@@ -11,6 +11,30 @@ class TrackingHistory extends BaseModel {
     }
     
     /**
+     * Get current user ID with fallback to SYSTEM
+     * 
+     * @return string User ID or 'SYSTEM' if not available
+     */
+    protected function getCurrentUserId() {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+        
+        // Debug session data
+        error_log('Session data in TrackingHistory: ' . json_encode($_SESSION));
+        
+        // Check for user_id in session
+        if (isset($_SESSION['user_id']) && !empty($_SESSION['user_id'])) {
+            error_log('Found user_id in session: ' . $_SESSION['user_id']);
+            return $_SESSION['user_id'];
+        }
+        
+        // Fallback to SYSTEM user
+        error_log('No user_id found in session. Using SYSTEM user.');
+        return 'SYSTEM';
+    }
+    
+    /**
      * Create a new tracking history entry
      * 
      * @param array $data Tracking history data
@@ -38,15 +62,37 @@ class TrackingHistory extends BaseModel {
             $location = isset($data['location']) ? $data['location'] : '';
             $description = isset($data['description']) ? $data['description'] : '';
             
+            // Get current user ID with fallback to SYSTEM
+            $userId = $this->getCurrentUserId();
+            error_log('Current user ID for tracking history create: ' . $userId);
+            
             // Check if tracking_history table exists
             $this->ensureTableExists();
-            
-            // Add audit fields
-            $data = $this->addAuditFields($data);
 
-            // Insert tracking history
-            $sql = "INSERT INTO tracking_history (id, shipment_id, status, location, description, timestamp, created_by) 
-                    VALUES (:id, :shipment_id, :status, :location, :description, NOW(), :created_by)";
+            // Insert tracking history with audit fields
+            $sql = "INSERT INTO tracking_history (
+                        id, 
+                        shipment_id, 
+                        status, 
+                        location, 
+                        description, 
+                        timestamp, 
+                        created_by,
+                        updated_by,
+                        created_at,
+                        updated_at
+                    ) VALUES (
+                        :id, 
+                        :shipment_id, 
+                        :status, 
+                        :location, 
+                        :description, 
+                        NOW(),
+                        :created_by,
+                        :updated_by,
+                        NOW(),
+                        NOW()
+                    )";
             
             $stmt = $this->db->prepare($sql);
             $stmt->bindValue(':id', $data['id'], PDO::PARAM_STR);
@@ -54,7 +100,19 @@ class TrackingHistory extends BaseModel {
             $stmt->bindValue(':status', $data['status']);
             $stmt->bindValue(':location', $location);
             $stmt->bindValue(':description', $description);
-            $stmt->bindValue(':created_by', $data['created_by']);
+            $stmt->bindValue(':created_by', $userId, PDO::PARAM_STR);
+            $stmt->bindValue(':updated_by', $userId, PDO::PARAM_STR);
+            
+            error_log('SQL Query: ' . $sql);
+            error_log('Parameters: ' . json_encode([
+                'id' => $data['id'],
+                'shipment_id' => $data['shipment_id'],
+                'status' => $data['status'],
+                'location' => $location,
+                'description' => $description,
+                'created_by' => $userId,
+                'updated_by' => $userId
+            ]));
             
             $result = $stmt->execute();
             
@@ -120,6 +178,10 @@ class TrackingHistory extends BaseModel {
      */
     public function update($id, $data) {
         try {
+            // Get current user ID with fallback to SYSTEM
+            $userId = $this->getCurrentUserId();
+            error_log('Current user ID for tracking history update: ' . $userId);
+            
             $sql = "UPDATE tracking_history SET ";
             $updates = [];
             $params = [':id' => $id];
@@ -130,18 +192,33 @@ class TrackingHistory extends BaseModel {
                     $updates[] = "$key = :$key";
                     $params[":$key"] = $value;
                 }
-            
             }
             
-            $sql .= implode(', ', $updates);
-            $sql .= " , updated_at = NOW(), updated_by = :updated_by WHERE id = :id";
-            $stmt = $this->db->prepare($sql);
-    
-            // Bind parameters
-            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
-            $stmt->bindParam(':updated_by', $this->getCurrentUserId(), PDO::PARAM_INT);
+            // Add updated_by and updated_at
+            $updates[] = "updated_by = :updated_by";
+            $updates[] = "updated_at = NOW()";
+            $params[':updated_by'] = $userId;
             
-            return $stmt->execute();
+            $sql .= implode(', ', $updates);
+            $sql .= " WHERE id = :id";
+            
+            error_log('Update SQL: ' . $sql);
+            error_log('Update params: ' . json_encode($params));
+            
+            $stmt = $this->db->prepare($sql);
+            
+            // Bind all parameters
+            foreach ($params as $key => $value) {
+                $stmt->bindValue($key, $value, PDO::PARAM_STR);
+            }
+            
+            $result = $stmt->execute();
+            
+            if (!$result) {
+                error_log('Update failed. PDO Error: ' . json_encode($stmt->errorInfo()));
+            }
+            
+            return $result;
         } catch (PDOException $e) {
             error_log('Update tracking history error: ' . $e->getMessage());
             return false;
@@ -269,7 +346,12 @@ class TrackingHistory extends BaseModel {
                         location VARCHAR(255),
                         description TEXT,
                         timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
-                        INDEX (shipment_id)
+                        created_by VARCHAR(26),
+                        updated_by VARCHAR(26),
+                        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                        INDEX (shipment_id),
+                        FOREIGN KEY (shipment_id) REFERENCES shipments(id) ON DELETE CASCADE
                     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
                 ";
                 $this->db->exec($createTableSql);
