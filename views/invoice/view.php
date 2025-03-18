@@ -17,15 +17,15 @@ include 'views/layout/header.php';
                         </a>
                         
                         <?php if ($invoice['status'] === 'unpaid'): ?>
-                            <a href="index.php?page=invoice&action=edit&id=<?= $invoice['id'] ?>" class="btn btn-sm btn-primary">
+                            <a href="index.php?page=invoice&action=edit&id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-sm btn-primary">
                                 <i class="fas fa-edit"></i> <?= __('edit') ?>
                             </a>
-                            <a href="index.php?page=invoice&action=markAsPaid&id=<?= $invoice['id'] ?>" class="btn btn-sm btn-success">
+                            <a href="index.php?page=invoice&action=markAsPaid&id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-sm btn-success">
                                 <i class="fas fa-check"></i> <?= __('mark_as_paid') ?>
                             </a>
                         <?php endif; ?>
                         
-                        <a href="index.php?page=invoice&action=print&id=<?= $invoice['id'] ?>" class="btn btn-sm btn-info" target="_blank">
+                        <a href="index.php?page=invoice&action=print&id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-sm btn-info" target="_blank">
                             <i class="fas fa-print"></i> <?= __('print') ?>
                         </a>
                         
@@ -36,24 +36,36 @@ include 'views/layout/header.php';
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
                                 <li>
-                                    <a class="dropdown-item" href="invoice_pdf.php?id=<?= $invoice['id'] ?>&lang=th" target="_blank">
+                                    <a class="dropdown-item" href="invoice_pdf.php?id=<?= htmlspecialchars($invoice['id']) ?>&lang=th" target="_blank">
                                         <i class="fas fa-file-pdf me-1"></i> <?= __('download_pdf_thai') ?>
                                     </a>
                                 </li>
                                 <li>
-                                    <a class="dropdown-item" href="invoice_pdf.php?id=<?= $invoice['id'] ?>&lang=en" target="_blank">
+                                    <a class="dropdown-item" href="invoice_pdf.php?id=<?= htmlspecialchars($invoice['id']) ?>&lang=en" target="_blank">
                                         <i class="fas fa-file-pdf me-1"></i> <?= __('download_pdf_english') ?>
                                     </a>
                                 </li>
                             </ul>
                         </div>
                         
-                        <a href="index.php?page=invoice&action=delete&id=<?= $invoice['id'] ?>" class="btn btn-sm btn-danger">
+                        <a href="index.php?page=invoice&action=delete&id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-sm btn-danger">
                             <i class="fas fa-trash"></i> <?= __('delete') ?>
                         </a>
                     </div>
                 </div>
                 <div class="card-body">
+                    <!-- เพิ่มปุ่ม Print PDF -->
+                    <div class="mb-3">
+                        <a href="invoice_pdf.php?id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-success" target="_blank">
+                            <i class="bi bi-printer"></i> <?= __('print') ?> PDF
+                        </a>
+                        <a href="index.php?page=invoice&action=edit&id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-primary">
+                            <i class="bi bi-pencil"></i> <?= __('edit') ?>
+                        </a>
+                        <a href="index.php?page=invoice" class="btn btn-secondary">
+                            <i class="bi bi-arrow-left"></i> <?= __('back_to_list') ?>
+                        </a>
+                    </div>
                     <div class="row mb-4">
                         <div class="col-md-6">
                             <h6 class="mb-2"><?= __('invoice_information') ?></h6>

@@ -1,4 +1,6 @@
 <?php
+require_once 'lib/UlidGenerator.php';
+
 class Lot {
     private $db;
     
@@ -56,16 +58,19 @@ class Lot {
      * Create a new lot
      * 
      * @param array $data Lot data
-     * @return int|bool Lot ID on success, false on failure
+     * @return string|bool Lot ID (ULID) on success, false on failure
      */
     public function create($data) {
         try {
+            // Generate ULID for new record
+            $id = UlidGenerator::generate();
+            
             $stmt = $this->db->prepare("
                 INSERT INTO lots (
-                    lot_number, lot_type, departure_date, arrival_date, 
+                    id, lot_number, lot_type, departure_date, arrival_date, 
                     origin, destination, status, created_at
                 ) VALUES (
-                    :lot_number, :lot_type, :departure_date, :arrival_date,
+                    :id, :lot_number, :lot_type, :departure_date, :arrival_date,
                     :origin, :destination, :status, NOW()
                 )
             ");
@@ -75,6 +80,7 @@ class Lot {
                 $data['lot_number'] = $this->generateLotNumber($data['lot_type']);
             }
             
+            $stmt->bindParam(':id', $id);
             $stmt->bindParam(':lot_number', $data['lot_number']);
             $stmt->bindParam(':lot_type', $data['lot_type']);
             $stmt->bindParam(':departure_date', $data['departure_date']);
@@ -84,7 +90,7 @@ class Lot {
             $stmt->bindParam(':status', $data['status']);
             
             $stmt->execute();
-            return $this->db->lastInsertId();
+            return $id; // Return the ULID instead of lastInsertId()
         } catch (PDOException $e) {
             error_log('Lot creation error: ' . $e->getMessage());
             return false;
@@ -94,13 +100,19 @@ class Lot {
     /**
      * Get lot by ID
      * 
-     * @param int $id Lot ID
+     * @param string $id Lot ID (ULID)
      * @return array|bool Lot data on success, false on failure
      */
     public function getById($id) {
         try {
+            // Validate ULID format
+            if (!UlidGenerator::isValid($id)) {
+                error_log('Invalid ULID format: ' . $id);
+                return false;
+            }
+            
             $stmt = $this->db->prepare("SELECT * FROM lots WHERE id = :id");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR); // เปลี่ยนจาก PDO::PARAM_INT เป็น PDO::PARAM_STR
             $stmt->execute();
             return $stmt->fetch(PDO::FETCH_ASSOC);
         } catch (PDOException $e) {
@@ -222,12 +234,18 @@ class Lot {
     /**
      * Update lot
      * 
-     * @param int $id Lot ID
+     * @param string $id Lot ID (ULID)
      * @param array $data Lot data
      * @return bool True on success, false on failure
      */
     public function update($id, $data) {
         try {
+            // Validate ULID format
+            if (!UlidGenerator::isValid($id)) {
+                error_log('Invalid ULID format: ' . $id);
+                return false;
+            }
+            
             $sql = "UPDATE lots SET ";
             $updates = [];
             $params = [':id' => $id];
@@ -244,8 +262,14 @@ class Lot {
             $sql .= ", updated_at = NOW() WHERE id = :id";
             
             $stmt = $this->db->prepare($sql);
+            
+            // เปลี่ยนวิธีการ bind parameter
             foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
+                if ($key === ':id') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
             }
             
             return $stmt->execute();
@@ -258,14 +282,20 @@ class Lot {
     /**
      * Delete lot
      * 
-     * @param int $id Lot ID
+     * @param string $id Lot ID (ULID)
      * @return bool True on success, false on failure
      */
     public function delete($id) {
         try {
+            // Validate ULID format
+            if (!UlidGenerator::isValid($id)) {
+                error_log('Invalid ULID format: ' . $id);
+                return false;
+            }
+            
             // Check if lot has shipments
             $stmt = $this->db->prepare("SELECT COUNT(*) FROM shipments WHERE lot_id = :id");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->execute();
             
             if ($stmt->fetchColumn() > 0) {
@@ -274,7 +304,7 @@ class Lot {
             }
             
             $stmt = $this->db->prepare("DELETE FROM lots WHERE id = :id");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Delete lot error: ' . $e->getMessage());
@@ -285,18 +315,24 @@ class Lot {
     /**
      * Update lot status
      * 
-     * @param int $id Lot ID
+     * @param string $id Lot ID (ULID)
      * @param string $status New status
      * @return bool True on success, false on failure
      */
     public function updateStatus($id, $status) {
         try {
+            // Validate ULID format
+            if (!UlidGenerator::isValid($id)) {
+                error_log('Invalid ULID format: ' . $id);
+                return false;
+            }
+            
             $stmt = $this->db->prepare("
                 UPDATE lots 
                 SET status = :status, updated_at = NOW() 
                 WHERE id = :id
             ");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
             $stmt->bindParam(':status', $status);
             return $stmt->execute();
         } catch (PDOException $e) {
@@ -308,26 +344,44 @@ class Lot {
     /**
      * Update lot status and all shipments in the lot
      * 
-     * @param int $id Lot ID
+     * @param string $id Lot ID (ULID)
      * @param string $status New status
      * @return bool True on success, false on failure
      */
     public function updateStatusWithShipments($id, $status) {
         try {
+            // Validate ULID format
+            if (!UlidGenerator::isValid($id)) {
+                error_log('Invalid ULID format: ' . $id);
+                return false;
+            }
+            
+            // Debug log
+            error_log('Starting updateStatusWithShipments for lot: ' . $id . ' with status: ' . $status);
+            
             $this->db->beginTransaction();
             
-            // Update lot status
+            // First, update the lot status
             $stmt = $this->db->prepare("
                 UPDATE lots 
                 SET status = :status, updated_at = NOW() 
                 WHERE id = :id
             ");
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':status', $status);
-            $stmt->execute();
+            $stmt->bindValue(':id', $id, PDO::PARAM_STR);
+            $stmt->bindValue(':status', $status);
+            $lotUpdateResult = $stmt->execute();
+            
+            if (!$lotUpdateResult) {
+                error_log('Failed to update lot status. Error: ' . json_encode($stmt->errorInfo()));
+                $this->db->rollBack();
+                return false;
+            }
+            
+            error_log('Lot status updated successfully');
             
             // Map lot status to shipment status
             $shipmentStatus = $this->mapLotStatusToShipmentStatus($status);
+            error_log('Mapped shipment status: ' . $shipmentStatus);
             
             // Update all shipments in this lot
             $stmt = $this->db->prepare("
@@ -335,23 +389,39 @@ class Lot {
                 SET status = :status, updated_at = NOW() 
                 WHERE lot_id = :lot_id
             ");
-            $stmt->bindParam(':lot_id', $id);
-            $stmt->bindParam(':status', $shipmentStatus);
-            $stmt->execute();
+            $stmt->bindValue(':lot_id', $id, PDO::PARAM_STR);
+            $stmt->bindValue(':status', $shipmentStatus);
+            $shipmentsUpdateResult = $stmt->execute();
             
-            // Add to tracking history for each shipment
+            if (!$shipmentsUpdateResult) {
+                error_log('Failed to update shipments status. Error: ' . json_encode($stmt->errorInfo()));
+                $this->db->rollBack();
+                return false;
+            }
+            
+            error_log('Shipments status updated successfully');
+            
+            // Get all shipments in this lot
             $stmt = $this->db->prepare("
                 SELECT id FROM shipments WHERE lot_id = :lot_id
             ");
-            $stmt->bindParam(':lot_id', $id);
+            $stmt->bindValue(':lot_id', $id, PDO::PARAM_STR);
             $stmt->execute();
             $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            error_log('Found ' . count($shipments) . ' shipments in lot');
+            
+            if (count($shipments) === 0) {
+                error_log('No shipments found in lot, committing transaction');
+                $this->db->commit();
+                return true; // No shipments to update, but lot was updated successfully
+            }
             
             // Get lot info for location
             $stmt = $this->db->prepare("
                 SELECT origin, destination FROM lots WHERE id = :id
             ");
-            $stmt->bindParam(':id', $id);
+            $stmt->bindValue(':id', $id, PDO::PARAM_STR);
             $stmt->execute();
             $lot = $stmt->fetch(PDO::FETCH_ASSOC);
             
@@ -371,22 +441,40 @@ class Lot {
                     $location = '';
             }
             
-            // Add tracking history for each shipment
-            $stmt = $this->db->prepare("
-                INSERT INTO tracking_history (
-                    shipment_id, status, location, description, timestamp
-                ) VALUES (
-                    :shipment_id, :status, :location, :description, NOW()
-                )
-            ");
+            error_log('Location determined: ' . $location);
             
+            // Add tracking history for each shipment
             foreach ($shipments as $shipment) {
-                $stmt->bindParam(':shipment_id', $shipment['id']);
-                $stmt->bindParam(':status', $shipmentStatus);
-                $stmt->bindParam(':location', $location);
+                $shipmentId = $shipment['id'];
+                
+                error_log('Adding tracking history for shipment: ' . $shipmentId);
+                
+                // Generate ULID for tracking history entry
+                $trackingHistoryId = UlidGenerator::generate();
+                
+                // Add description based on status
                 $description = "Status updated to " . $shipmentStatus . " (Lot status: " . $status . ")";
-                $stmt->bindParam(':description', $description);
-                $stmt->execute();
+                
+                // Insert tracking history
+                $stmt = $this->db->prepare("
+                    INSERT INTO tracking_history (
+                        id, shipment_id, status, location, description, timestamp
+                    ) VALUES (
+                        :id, :shipment_id, :status, :location, :description, NOW()
+                    )
+                ");
+                $stmt->bindValue(':id', $trackingHistoryId, PDO::PARAM_STR);
+                $stmt->bindValue(':shipment_id', $shipmentId, PDO::PARAM_STR);
+                $stmt->bindValue(':status', $shipmentStatus);
+                $stmt->bindValue(':location', $location);
+                $stmt->bindValue(':description', $description);
+                
+                $historyResult = $stmt->execute();
+                
+                if (!$historyResult) {
+                    error_log('Failed to add tracking history for shipment: ' . $shipmentId . '. Error: ' . json_encode($stmt->errorInfo()));
+                    // Continue with other shipments even if one fails
+                }
             }
             
             $this->db->commit();

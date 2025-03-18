@@ -208,11 +208,11 @@
                                 </td>
                                 <td>
                                     <div class="btn-group">
-                                        <a href="index.php?page=shipments&action=view&id=<?php echo $shipment['id']; ?>" 
+                                        <a href="index.php?page=shipments&action=view&id=<?php echo urlencode($shipment['id']); ?>" 
                                            class="btn btn-sm btn-info" title="<?php echo __('view'); ?>">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="index.php?page=shipments&action=edit&id=<?php echo $shipment['id']; ?>" 
+                                        <a href="index.php?page=shipments&action=edit&id=<?php echo urlencode($shipment['id']); ?>" 
                                            class="btn btn-sm btn-warning" title="<?php echo __('edit'); ?>">
                                             <i class="bi bi-pencil"></i>
                                         </a>

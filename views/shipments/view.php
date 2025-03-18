@@ -290,7 +290,7 @@ function openTrackingLink(carrier, trackingNumber) {
 
 function confirmDelete(id) {
     if (confirm('คุณแน่ใจหรือไม่ที่จะลบพัสดุนี้?')) {
-        window.location.href = 'index.php?page=shipments&action=delete&id=' + id;
+        window.location.href = 'index.php?page=shipments&action=delete&id=' + encodeURIComponent(id);
     }
 }
 </script>

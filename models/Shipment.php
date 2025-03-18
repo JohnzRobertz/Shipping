@@ -5,7 +5,10 @@ class Shipment {
     public function __construct() {
         global $db;
         $this->db = $db;
-    }
+        
+    // เรียกใช้เมธอดเพื่อเพิ่มคอลัมน์ payment_status ถ้ายังไม่มี
+    $this->addPaymentStatusColumnIfNotExists();
+}
     
     /**
      * Generate tracking number
@@ -106,18 +109,60 @@ class Shipment {
      */
    public function create($data) {
     try {
+        // Debug log
+        error_log('Creating shipment with data: ' . print_r($data, true));
+        
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่ ถ้าไม่มีให้สร้างใหม่
+        if (!isset($data['id'])) {
+            $data['id'] = UlidGenerator::generate();
+        }
+        
         // Generate tracking number if not provided
         if (empty($data['tracking_number'])) {
-            $lotId = isset($data['lot_id']) && !empty($data['lot_id']) ? $data['lot_id'] : null;
+            $lotId = null;
+            
+            // ถ้ามี lot_id ให้ใช้ lot_id ที่ส่งมา
+            if (isset($data['lot_id']) && !empty($data['lot_id'])) {
+                $lotId = $data['lot_id'];
+                error_log('Using provided lot_id: ' . $lotId);
+            }
+            // ถ้ามี lot_number ให้หา lot_id
+            else if (isset($data['lot_number']) && !empty($data['lot_number'])) {
+                $lotId = $this->getLotIdByNumber($data['lot_number']);
+                error_log('Found lot_id from lot_number: ' . $lotId);
+            }
+            
             $data['tracking_number'] = $this->generateTrackingNumber($lotId);
+            error_log('Generated tracking number: ' . $data['tracking_number']);
         }
         
         // Set default values for fields that might be missing
-        $lotId = isset($data['lot_id']) && !empty($data['lot_id']) ? $data['lot_id'] : null;
+        $lotId = null;
+        
+        // ถ้ามี lot_id ให้ใช้ lot_id ที่ส่งมา
+        if (isset($data['lot_id']) && !empty($data['lot_id'])) {
+            $lotId = $data['lot_id'];
+            error_log('Using provided lot_id: ' . $lotId);
+        }
+        // ถ้ามี lot_number ให้หา lot_id
+        else if (isset($data['lot_number']) && !empty($data['lot_number'])) {
+            $lotId = $this->getLotIdByNumber($data['lot_number']);
+            error_log('Found lot_id from lot_number: ' . $data['lot_number'] . ', lot_id: ' . ($lotId ? $lotId : 'null'));
+            
+            // ถ้าไม่พบ lot_id ให้ลองสร้าง log เพิ่มเติมเพื่อตรวจสอบ
+            if (!$lotId) {
+                // ลองดึงข้อมูล lot ทั้งหมดเพื่อตรวจสอบ
+                $checkLotsStmt = $this->db->prepare("SELECT id, lot_number FROM lots LIMIT 10");
+                $checkLotsStmt->execute();
+                $lots = $checkLotsStmt->fetchAll(PDO::FETCH_ASSOC);
+                error_log('Available lots: ' . json_encode($lots));
+            }
+        }
+        
         $description = isset($data['description']) ? $data['description'] : '';
         $status = isset($data['status']) ? $data['status'] : 'received';
         $customerCode = isset($data['customer_code']) ? $data['customer_code'] : '';
-        $pricePerKg = isset($data['price']) ? $data['price'] : 0; // แก้จาก price_per_kg เป็น price
+        $pricePerKg = isset($data['price']) ? $data['price'] : 0;
         
         // Calculate volumetric weight
         $volumetricWeight = $this->calculateVolumetricWeight(
@@ -137,45 +182,53 @@ class Shipment {
         $totalPrice = $this->calculateShippingPrice($chargeableWeight, $pricePerKg);
         
         $stmt = $this->db->prepare("
-    INSERT INTO shipments (
-        tracking_number, lot_id, customer_code, sender_name, sender_contact, sender_phone,
-        receiver_name, receiver_contact, receiver_phone, weight, length, width, height,
-        volumetric_weight, chargeable_weight, description, status, 
-        price, total_price, created_at
-    ) VALUES (
-        :tracking_number, :lot_id, :customer_code, :sender_name, :sender_contact, :sender_phone,
-        :receiver_name, :receiver_contact, :receiver_phone, :weight, :length, :width, :height,
-        :volumetric_weight, :chargeable_weight, :description, :status, 
-        :price, :total_price, NOW()
-    )
-");
+            INSERT INTO shipments (
+                id, tracking_number, lot_id, customer_code, sender_name, sender_contact, sender_phone,
+                receiver_name, receiver_contact, receiver_phone, weight, length, width, height,
+                volumetric_weight, chargeable_weight, description, status, 
+                price, total_price, created_at
+            ) VALUES (
+                :id, :tracking_number, :lot_id, :customer_code, :sender_name, :sender_contact, :sender_phone,
+                :receiver_name, :receiver_contact, :receiver_phone, :weight, :length, :width, :height,
+                :volumetric_weight, :chargeable_weight, :description, :status, 
+                :price, :total_price, NOW()
+            )
+        ");
        
-       $stmt->bindParam(':tracking_number', $data['tracking_number']);
-       $stmt->bindParam(':lot_id', $lotId, PDO::PARAM_INT);
-       $stmt->bindParam(':customer_code', $customerCode);
-       $stmt->bindParam(':sender_name', $data['sender_name']);
-       $stmt->bindParam(':sender_contact', $data['sender_contact']);
-       $stmt->bindParam(':sender_phone', $data['sender_phone']);
-       $stmt->bindParam(':receiver_name', $data['receiver_name']);
-       $stmt->bindParam(':receiver_contact', $data['receiver_contact']);
-       $stmt->bindParam(':receiver_phone', $data['receiver_phone']);
-       $stmt->bindParam(':weight', $data['weight']);
-       $stmt->bindParam(':length', $data['length']);
-       $stmt->bindParam(':width', $data['width']);
-       $stmt->bindParam(':height', $data['height']);
-       $stmt->bindParam(':volumetric_weight', $volumetricWeight);
-       $stmt->bindParam(':chargeable_weight', $chargeableWeight);
-       $stmt->bindParam(':description', $description);
-       $stmt->bindParam(':status', $status);
-       $stmt->bindParam(':price', $pricePerKg); // แก้จาก price_per_kg เป็น price
-       $stmt->bindParam(':total_price', $totalPrice);
+        $stmt->bindParam(':id', $data['id']);
+        $stmt->bindParam(':tracking_number', $data['tracking_number']);
+        $stmt->bindParam(':lot_id', $lotId, PDO::PARAM_STR);
+        $stmt->bindParam(':customer_code', $customerCode);
+        $stmt->bindParam(':sender_name', $data['sender_name']);
+        $stmt->bindParam(':sender_contact', $data['sender_contact']);
+        $stmt->bindParam(':sender_phone', $data['sender_phone']);
+        $stmt->bindParam(':receiver_name', $data['receiver_name']);
+        $stmt->bindParam(':receiver_contact', $data['receiver_contact']);
+        $stmt->bindParam(':receiver_phone', $data['receiver_phone']);
+        $stmt->bindParam(':weight', $data['weight']);
+        $stmt->bindParam(':length', $data['length']);
+        $stmt->bindParam(':width', $data['width']);
+        $stmt->bindParam(':height', $data['height']);
+        $stmt->bindParam(':volumetric_weight', $volumetricWeight);
+        $stmt->bindParam(':chargeable_weight', $chargeableWeight);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':status', $status);
+        $stmt->bindParam(':price', $pricePerKg);
+        $stmt->bindParam(':total_price', $totalPrice);
        
-       $stmt->execute();
-       return $this->db->lastInsertId();
-   } catch (PDOException $e) {
-       error_log('Shipment creation error: ' . $e->getMessage());
-       return false;
-   }
+        $result = $stmt->execute();
+        
+        if (!$result) {
+            error_log('Error creating shipment: ' . print_r($stmt->errorInfo(), true));
+            return false;
+        }
+        
+        error_log('Shipment created successfully with ID: ' . $data['id']);
+        return $data['id'];
+    } catch (PDOException $e) {
+        error_log('Shipment creation error: ' . $e->getMessage());
+        return false;
+    }
 }
 
     /**
@@ -210,7 +263,7 @@ class Shipment {
         WHERE s.id = :id";
         
         $stmt = $this->db->prepare($sql);
-        $stmt->bindParam(':id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR); // เปลี่ยนจาก PDO::PARAM_INT เป็น PDO::PARAM_STR
         $stmt->execute();
         
         $shipment = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -285,6 +338,11 @@ class Shipment {
                 $params[':lot_id'] = $filters['lot_id'];
             }
             
+            if (!empty($filters['lot_number'])) {
+                $sql .= " AND l.lot_number = :lot_number";
+                $params[':lot_number'] = $filters['lot_number'];
+            }
+            
             if (!empty($filters['status'])) {
                 $sql .= " AND s.status = :status";
                 $params[':status'] = $filters['status'];
@@ -349,6 +407,16 @@ class Shipment {
         // Get current shipment data
         $current = $this->getById($id);
         
+        // ถ้ามี lot_number ให้หา lot_id
+        if (isset($data['lot_number']) && !empty($data['lot_number'])) {
+            $lotId = $this->getLotIdByNumber($data['lot_number']);
+            if ($lotId) {
+                $data['lot_id'] = $lotId;
+            } else {
+                error_log('Lot number not found: ' . $data['lot_number']);
+            }
+        }
+        
         // If dimensions or weight changed, recalculate volumetric and chargeable weights
         if (isset($data['length']) || isset($data['width']) || isset($data['height']) || isset($data['weight'])) {
             // Get values to use in calculation
@@ -397,7 +465,7 @@ class Shipment {
         
         // Build update statement
         foreach ($data as $key => $value) {
-            if ($key !== 'id' && $key !== 'tracking_number') { // Don't update tracking number
+            if ($key !== 'id' && $key !== 'tracking_number' && $key !== 'lot_number') { // Don't update tracking number or lot_number
                 $updates[] = "$key = :$key";
                 $params[":$key"] = $value;
             }
@@ -425,15 +493,26 @@ class Shipment {
      * @return bool True on success, false on failure
      */
     public function delete($id) {
-        try {
-            $stmt = $this->db->prepare("DELETE FROM shipments WHERE id = :id");
-            $stmt->bindParam(':id', $id);
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log('Delete shipment error: ' . $e->getMessage());
+    try {
+        // เพิ่ม debug log
+        error_log('Attempting to delete shipment with ID: ' . $id);
+        
+        $stmt = $this->db->prepare("DELETE FROM shipments WHERE id = :id");
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+        $result = $stmt->execute();
+        
+        if ($result) {
+            error_log('Successfully deleted shipment with ID: ' . $id);
+            return true;
+        } else {
+            error_log('Failed to delete shipment. PDO Error: ' . json_encode($stmt->errorInfo()));
             return false;
         }
+    } catch (PDOException $e) {
+        error_log('Delete shipment error: ' . $e->getMessage());
+        return false;
     }
+}
     
     /**
      * Update shipment status
@@ -443,20 +522,33 @@ class Shipment {
      * @return bool True on success, false on failure
      */
     public function updateStatus($id, $status) {
-        try {
-            $stmt = $this->db->prepare("
-                UPDATE shipments 
-                SET status = :status, updated_at = NOW() 
-                WHERE id = :id
-            ");
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':status', $status);
-            return $stmt->execute();
-        } catch (PDOException $e) {
-            error_log('Update shipment status error: ' . $e->getMessage());
+    try {
+        $this->db->beginTransaction();
+        
+        // Update shipment status
+        $stmt = $this->db->prepare("
+            UPDATE shipments 
+            SET status = :status, updated_at = NOW() 
+            WHERE id = :id
+        ");
+        $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+        $stmt->bindParam(':status', $status);
+        $statusUpdateResult = $stmt->execute();
+        
+        if (!$statusUpdateResult) {
+            $this->db->rollBack();
+            error_log('Failed to update shipment status. Error: ' . json_encode($stmt->errorInfo()));
             return false;
         }
+        
+        $this->db->commit();
+        return true;
+    } catch (PDOException $e) {
+        $this->db->rollBack();
+        error_log('Update shipment status error: ' . $e->getMessage());
+        return false;
     }
+}
 
     public function getUnpaidShipments() {
         try {
@@ -485,6 +577,27 @@ class Shipment {
      */
     public function getTrackingHistory($shipmentId) {
     try {
+        // Check if tracking_history table exists
+        $checkTableStmt = $this->db->prepare("SHOW TABLES LIKE 'tracking_history'");
+        $checkTableStmt->execute();
+        if ($checkTableStmt->rowCount() == 0) {
+            error_log('tracking_history table does not exist, creating it');
+            
+            // Create tracking_history table if it doesn't exist
+            $createTableSql = "
+                CREATE TABLE IF NOT EXISTS tracking_history (
+                    id VARCHAR(26) PRIMARY KEY,
+                    shipment_id VARCHAR(26) NOT NULL,
+                    status VARCHAR(50) NOT NULL,
+                    location VARCHAR(255),
+                    description TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX (shipment_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ";
+            $this->db->exec($createTableSql);
+        }
+        
         $stmt = $this->db->prepare("
             SELECT * FROM tracking_history 
             WHERE shipment_id = :shipment_id 
@@ -502,34 +615,75 @@ class Shipment {
     /**
      * Add tracking history entry
      * 
-     * @param int $shipmentId Shipment ID
+     * @param string $shipmentId Shipment ID
      * @param string $status Status
      * @param string $location Location
      * @param string $description Description
-     * @return int|bool History ID on success, false on failure
+     * @return bool True on success, false on failure
      */
     public function addTrackingHistory($shipmentId, $status, $location, $description) {
-        try {
-            $stmt = $this->db->prepare("
-                INSERT INTO tracking_history (
-                    shipment_id, status, location, description, timestamp
-                ) VALUES (
-                    :shipment_id, :status, :location, :description, NOW()
-                )
-            ");
+    try {
+        error_log('Adding tracking history for shipment: ' . $shipmentId . ', status: ' . $status . ', location: ' . $location);
+        
+        // Check if tracking_history table exists
+        $checkTableStmt = $this->db->prepare("SHOW TABLES LIKE 'tracking_history'");
+        $checkTableStmt->execute();
+        if ($checkTableStmt->rowCount() == 0) {
+            error_log('tracking_history table does not exist, creating it');
             
-            $stmt->bindParam(':shipment_id', $shipmentId);
-            $stmt->bindParam(':status', $status);
-            $stmt->bindParam(':location', $location);
-            $stmt->bindParam(':description', $description);
+            // Create tracking_history table if it doesn't exist
+            $createTableSql = "
+                CREATE TABLE IF NOT EXISTS tracking_history (
+                    id VARCHAR(26) PRIMARY KEY,
+                    shipment_id VARCHAR(26) NOT NULL,
+                    status VARCHAR(50) NOT NULL,
+                    location VARCHAR(255),
+                    description TEXT,
+                    timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                    INDEX (shipment_id)
+                ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+            ";
+            $this->db->exec($createTableSql);
             
-            $stmt->execute();
-            return $this->db->lastInsertId();
-        } catch (PDOException $e) {
-            error_log('Add tracking history error: ' . $e->getMessage());
+            // Verify table was created
+            $checkTableAgain = $this->db->prepare("SHOW TABLES LIKE 'tracking_history'");
+            $checkTableAgain->execute();
+            if ($checkTableAgain->rowCount() == 0) {
+                error_log('Failed to create tracking_history table');
+                return false;
+            }
+        }
+        
+        // Generate ULID for tracking history entry
+        $trackingHistoryId = UlidGenerator::generate();
+        
+        // Insert tracking history
+        $sql = "INSERT INTO tracking_history (id, shipment_id, status, location, description, timestamp) 
+                VALUES (:id, :shipment_id, :status, :location, :description, NOW())";
+        
+        $stmt = $this->db->prepare($sql);
+        
+        // Use bindValue instead of bindParam
+        $stmt->bindValue(':id', $trackingHistoryId, PDO::PARAM_STR);
+        $stmt->bindValue(':shipment_id', $shipmentId, PDO::PARAM_STR);
+        $stmt->bindValue(':status', $status);
+        $stmt->bindValue(':location', $location);
+        $stmt->bindValue(':description', $description);
+        
+        $result = $stmt->execute();
+        
+        if ($result) {
+            error_log('Successfully added tracking history for shipment: ' . $shipmentId . ' with ID: ' . $trackingHistoryId);
+            return true;
+        } else {
+            error_log('Failed to add tracking history. PDO Error: ' . json_encode($stmt->errorInfo()));
             return false;
         }
+    } catch (PDOException $e) {
+        error_log('Exception adding tracking history: ' . $e->getMessage());
+        return false;
     }
+}
     
     /**
      * Validate shipment data for CSV import
@@ -663,17 +817,64 @@ class Shipment {
      * @return int|null Lot ID or null if not found
      */
     public function getLotIdByNumber($lotNumber) {
-        try {
-            $stmt = $this->db->prepare("SELECT id FROM lots WHERE lot_number = :lot_number");
-            $stmt->bindParam(':lot_number', $lotNumber);
-            $stmt->execute();
-            $result = $stmt->fetch(PDO::FETCH_ASSOC);
-            return $result ? $result['id'] : null;
-        } catch (PDOException $e) {
-            error_log('Get lot ID by number error: ' . $e->getMessage());
+    try {
+        error_log('Getting lot ID for lot number: ' . $lotNumber);
+        
+        // ตรวจสอบว่า lot_number ไม่ว่างเปล่า
+        if (empty($lotNumber)) {
+            error_log('Lot number is empty');
             return null;
         }
+        
+        // ทำความสะอาด lot_number
+        $lotNumber = trim($lotNumber);
+        
+        // ตรวจสอบว่าตาราง lots มีอยู่จริง
+        $checkTableStmt = $this->db->prepare("SHOW TABLES LIKE 'lots'");
+        $checkTableStmt->execute();
+        if ($checkTableStmt->rowCount() == 0) {
+            error_log('Lots table does not exist');
+            return null;
+        }
+        
+        // ตรวจสอบว่ามีข้อมูลในตาราง lots หรือไม่
+        $countStmt = $this->db->prepare("SELECT COUNT(*) FROM lots");
+        $countStmt->execute();
+        $count = $countStmt->fetchColumn();
+        error_log('Total lots in database: ' . $count);
+        
+        // ดึงข้อมูล lot จาก lot_number
+        $stmt = $this->db->prepare("SELECT id FROM lots WHERE lot_number = :lot_number");
+        $stmt->bindParam(':lot_number', $lotNumber);
+        $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_ASSOC);
+    
+        if (!$result) {
+            error_log('Lot number not found: ' . $lotNumber);
+            
+            // ลองค้นหาแบบไม่ตรงทั้งหมด
+            $likeStmt = $this->db->prepare("SELECT id, lot_number FROM lots WHERE lot_number LIKE :lot_number_like LIMIT 5");
+            $likeParam = '%' . $lotNumber . '%';
+            $likeStmt->bindParam(':lot_number_like', $likeParam);
+            $likeStmt->execute();
+            $similarLots = $likeStmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            if (count($similarLots) > 0) {
+                error_log('Similar lot numbers found: ' . json_encode($similarLots));
+            } else {
+                error_log('No similar lot numbers found');
+            }
+            
+            return null;
+        }
+        
+        error_log('Found lot ID: ' . $result['id']);
+        return $result['id'];
+    } catch (PDOException $e) {
+        error_log('Get lot ID by number error: ' . $e->getMessage());
+        return null;
     }
+}
     
     /**
      * Update domestic tracking information
@@ -704,8 +905,14 @@ class Shipment {
             $sql .= ", updated_at = NOW() WHERE id = :id";
             
             $stmt = $this->db->prepare($sql);
+            
+            // เปลี่ยนวิธีการ bind parameter
             foreach ($params as $key => $value) {
-                $stmt->bindValue($key, $value);
+                if ($key === ':id') {
+                    $stmt->bindValue($key, $value, PDO::PARAM_STR);
+                } else {
+                    $stmt->bindValue($key, $value);
+                }
             }
             
             $result = $stmt->execute();
@@ -725,7 +932,7 @@ class Shipment {
                     );
                 }
             }
-            
+        
             return $result;
         } catch (PDOException $e) {
             error_log('Update domestic tracking error: ' . $e->getMessage());
@@ -817,7 +1024,7 @@ class Shipment {
                 FROM shipments s
                 LEFT JOIN lots l ON s.lot_id = l.id
                 LEFT JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id
-                LEFT JOIN invoices i ON is_rel.invoice_id = i.id
+                LEFT JOIN invoices i ON is_rel.invoice_id = is_rel.id
                 ORDER BY s.created_at DESC
                 LIMIT :limit OFFSET :offset
             ");
@@ -853,11 +1060,40 @@ class Shipment {
                 SET lot_id = :lot_id, updated_at = NOW() 
                 WHERE id = :id
             ");
-            $stmt->bindParam(':id', $id);
-            $stmt->bindParam(':lot_id', $lotId, PDO::PARAM_INT);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR); // เปลี่ยนจาก PDO::PARAM_INT เป็น PDO::PARAM_STR
+            $stmt->bindParam(':lot_id', $lotId, PDO::PARAM_STR); // เปลี่ยนจาก PDO::PARAM_INT เป็น PDO::PARAM_STR
             return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Update shipment lot error: ' . $e->getMessage());
+            return false;
+        }
+    }
+    
+    /**
+     * Update lot assignment for a shipment using lot number
+     * 
+     * @param int $id Shipment ID
+     * @param string|null $lotNumber Lot number or null to remove assignment
+     * @return bool True on success, false on failure
+     */
+    public function updateLotByNumber($id, $lotNumber) {
+        try {
+            // ถ้าไม่มี lot_number ให้ลบการเชื่อมโยงกับล็อต
+            if (empty($lotNumber)) {
+                $lotId = null;
+            } else {
+                // หา lot_id จาก lot_number
+                $lotId = $this->getLotIdByNumber($lotNumber);
+                if (!$lotId) {
+                    error_log('Lot number not found: ' . $lotNumber);
+                    return false;
+                }
+            }
+            
+            // อัพเดทข้อมูล
+            return $this->updateLot($id, $lotId);
+        } catch (PDOException $e) {
+            error_log('Update shipment lot by number error: ' . $e->getMessage());
             return false;
         }
     }
@@ -879,9 +1115,10 @@ class Shipment {
                 return false;
             }
             
-            $stmt = $this->db->prepare("UPDATE shipments SET status = ?, updated_at = NOW() WHERE id = ?");
-            $stmt->execute([$status, $id]);
-            return true;
+            $stmt = $this->db->prepare("UPDATE shipments SET status = :status, updated_at = NOW() WHERE id = :id");
+            $stmt->bindParam(':status', $status);
+            $stmt->bindParam(':id', $id, PDO::PARAM_STR);
+            return $stmt->execute();
         } catch (PDOException $e) {
             error_log('Update shipment status error: ' . $e->getMessage());
             return false;
@@ -1022,6 +1259,99 @@ class Shipment {
 
         return $shipments;
     }
+
+    // เพิ่มเมธอดนี้ในคลาส Shipment
+    public function getRecentShipments($limit = 5) {
+        $sql = "SELECT s.*, l.lot_number, 
+                (SELECT status FROM tracking_history WHERE shipment_id = s.id ORDER BY timestamp DESC LIMIT 1) as current_status
+                FROM shipments s
+                LEFT JOIN lots l ON s.lot_id = l.id
+                ORDER BY s.created_at DESC
+                LIMIT :limit";
+        
+        $stmt = $this->db->prepare($sql);
+        $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+        $stmt->execute();
+        
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+
+    public function getLatestShipments($limit = 5) {
+        try {
+            // Debug log
+            error_log('Fetching latest shipments with limit: ' . $limit);
+            
+            // ตรวจสอบการเชื่อมต่อฐานข้อมูล
+            if (!$this->db) {
+                error_log('Database connection is null in getLatestShipments');
+                return [];
+            }
+            
+            // SQL query ที่ปรับปรุงแล้ว - ไม่ใช้ customer_id แต่ใช้ customer_code แทน
+            $sql = "SELECT s.*, l.origin, l.destination, l.lot_number, l.lot_type, 
+                         c.name as customer_name
+                  FROM shipments s
+                  LEFT JOIN lots l ON s.lot_id = l.id
+                  LEFT JOIN customers c ON s.customer_code = c.code
+                  ORDER BY s.created_at DESC
+                  LIMIT :limit";
+            
+            $stmt = $this->db->prepare($sql);
+            $stmt->bindParam(':limit', $limit, PDO::PARAM_INT);
+            $stmt->execute();
+            
+            $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+            
+            // Debug log
+            error_log('Found ' . count($shipments) . ' latest shipments');
+            
+            return $shipments;
+        } catch (PDOException $e) {
+            error_log("Error fetching latest shipments: " . $e->getMessage());
+            return [];
+        }
+    }
+
+// เพิ่มเมธอดนี้ในคลาส Shipment
+
+public function addPaymentStatusColumnIfNotExists() {
+    try {
+        global $db;
+        // ตรวจสอบว่ามีคอลัมน์ payment_status ในตาราง shipments หรือไม่
+        $sql = "SHOW COLUMNS FROM shipments LIKE 'payment_status'";
+        $stmt = $db->prepare($sql);
+        $stmt->execute();
+        
+        if ($stmt->rowCount() === 0) {
+            // ถ้าไม่มีคอลัมน์ payment_status ให้เพิ่มเข้าไป
+            $sql = "ALTER TABLE shipments ADD COLUMN payment_status ENUM('unpaid', 'invoiced', 'paid') DEFAULT 'unpaid'";
+            $db->exec($sql);
+            
+            // อัปเดตข้อมูลเดิม: ถ้า shipment อยู่ในใบแจ้งหนี้ที่มีสถานะ 'paid' ให้กำหนด payment_status เป็น 'paid'
+            $sql = "UPDATE shipments s
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id
+                    JOIN invoices i ON is_rel.invoice_id = i.id
+                    SET s.payment_status = 'paid'
+                    WHERE i.status = 'paid'";
+            $db->exec($sql);
+            
+            // อัปเดตข้อมูลเดิม: ถ้า shipment อยู่ในใบแจ้งหนี้ที่มีสถานะ 'unpaid' ให้กำหนด payment_status เป็น 'invoiced'
+            $sql = "UPDATE shipments s
+                    JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id
+                    JOIN invoices i ON is_rel.invoice_id = i.id
+                    SET s.payment_status = 'invoiced'
+                    WHERE i.status = 'unpaid'";
+            $db->exec($sql);
+            
+            error_log("Added payment_status column to shipments table");
+        }
+        
+        return true;
+    } catch (PDOException $e) {
+        error_log("Error adding payment_status column to shipments: " . $e->getMessage());
+        return false;
+    }
+}
 }
 ?>
 

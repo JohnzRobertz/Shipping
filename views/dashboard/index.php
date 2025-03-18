@@ -12,68 +12,6 @@
         </div>
     </div>
 
-    <?php if (isset($showDebug) && $showDebug): ?>
-    <div class="row mb-4">
-        <div class="col-12">
-            <div class="card bg-light">
-                <div class="card-header d-flex justify-content-between align-items-center">
-                    <h5 class="card-title mb-0">Debug Information</h5>
-                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#debugInfo" aria-expanded="false">
-                        Toggle Debug Info
-                    </button>
-                </div>
-                <div class="card-body collapse" id="debugInfo">
-                    <h6>Database Tables</h6>
-                    <?php if (isset($debugInfo['tables'])): ?>
-                        <pre><?= print_r($debugInfo['tables'], true) ?></pre>
-                        
-                        <?php if (in_array('shipments', $debugInfo['tables'])): ?>
-                            <h6>Shipments Table Structure</h6>
-                            <pre><?= print_r($debugInfo['shipments_columns'], true) ?></pre>
-                            
-                            <h6>Total Shipments</h6>
-                            <p>Total: <?= $debugInfo['shipments_count'] ?></p>
-                            
-                            <?php if ($debugInfo['shipments_count'] > 0): ?>
-                                <h6>Sample Shipment Data</h6>
-                                <pre><?= print_r($debugInfo['sample_shipment'], true) ?></pre>
-                            <?php else: ?>
-                                <div class="alert alert-warning">No shipments found in database.</div>
-                            <?php endif; ?>
-                        <?php else: ?>
-                            <div class="alert alert-danger">Shipments table does not exist!</div>
-                        <?php endif; ?>
-                        
-                        <?php if (in_array('lots', $debugInfo['tables'])): ?>
-                            <h6>Lots Table Structure</h6>
-                            <pre><?= print_r($debugInfo['lots_columns'] ?? [], true) ?></pre>
-                            
-                            <?php if (isset($debugInfo['sample_lot'])): ?>
-                                <h6>Sample Lot Data</h6>
-                                <pre><?= print_r($debugInfo['sample_lot'], true) ?></pre>
-                            <?php endif; ?>
-                        <?php endif; ?>
-                    <?php elseif (isset($debugInfo['error'])): ?>
-                        <div class="alert alert-danger">Error: <?= $debugInfo['error'] ?></div>
-                    <?php endif; ?>
-                    
-                    <h6>Summary Data</h6>
-                    <pre><?= print_r($summaryData, true) ?></pre>
-                    
-                    <h6>Recent Shipments</h6>
-                    <pre><?= print_r($recentShipments, true) ?></pre>
-                    
-                    <h6>Status Counts</h6>
-                    <pre><?= print_r($statusCounts, true) ?></pre>
-                    
-                    <h6>Monthly Revenue</h6>
-                    <pre><?= print_r($monthlyRevenue, true) ?></pre>
-                </div>
-            </div>
-        </div>
-    </div>
-    <?php endif; ?>
-
     <!-- Summary Cards -->
     <div class="row g-4 mb-4">
         <div class="col-md-6 col-lg-3">

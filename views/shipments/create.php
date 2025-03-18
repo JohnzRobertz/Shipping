@@ -117,11 +117,11 @@
                         <div class="row mb-3">
                             <div class="col-md-6">
                                 <p class="mb-1"><?php echo __('volumetric_weight'); ?>:</p>
-                                <h5 id="volumetric_weight">0.00 กก.</h5>
+                                <h5 id="volumetric_weight">0.00 <?php echo __('kg'); ?></h5>
                             </div>
                             <div class="col-md-6">
                                 <p class="mb-1"><?php echo __('chargeable_weight'); ?>:</p>
-                                <h5 id="chargeable_weight">0.00 กก.</h5>
+                                <h5 id="chargeable_weight">0.00 <?php echo __('kg'); ?></h5>
                             </div>
                         </div>
                         
@@ -151,12 +151,12 @@
             </div>
             <div class="card-body">
                 <div class="mb-3">
-                    <label for="lot_id" class="form-label"><?php echo __('select_lot'); ?></label>
-                    <select class="form-select" id="lot_id" name="lot_id">
-                        <option value=""><?php echo __('no_lot'); ?></option>
+                    <label for="lot_number" class="form-label"><?php echo __('lot_number'); ?></label>
+                    <select class="form-select" id="lot_number" name="lot_number">
+                        <option value="">-- <?php echo __('select'); ?> --</option>
                         <?php foreach ($lots as $lot): ?>
-                            <option value="<?php echo $lot['id']; ?>">
-                                <?php echo $lot['lot_number']; ?> - <?php echo $lot['origin']; ?> → <?php echo $lot['destination']; ?>
+                            <option value="<?php echo htmlspecialchars($lot['lot_number']); ?>">
+                                <?php echo htmlspecialchars($lot['lot_number']); ?> - <?php echo htmlspecialchars($lot['origin']); ?> → <?php echo htmlspecialchars($lot['destination']); ?>
                             </option>
                         <?php endforeach; ?>
                     </select>
@@ -168,9 +168,9 @@
         <div class="d-grid gap-2">
             <button type="submit" class="btn btn-primary btn-lg">
                 <i class="bi bi-save me-2"></i> <?php echo __('create_shipment'); ?>
-        </button>
-    </div>
-</form>
+            </button>
+        </div>
+    </form>
 </div>
 
 <script>
@@ -180,13 +180,13 @@ function updateCalculations() {
     const height = parseFloat(document.getElementById('height').value) || 0;
     const weight = parseFloat(document.getElementById('weight').value) || 0;
     const pricePerKg = parseFloat(document.getElementById('price').value) || 0;
-    
+
     let divisor = 6000; // Default
-    
+
     const dimensionalWeight = (length * width * height) / divisor;
     const chargeableWeight = Math.max(dimensionalWeight, weight);
     const totalPrice = chargeableWeight * pricePerKg;
-    
+
     document.getElementById('volumetric_weight').textContent = dimensionalWeight.toFixed(2) + ' ' + '<?php echo __('kg'); ?>';
     document.getElementById('chargeable_weight').textContent = chargeableWeight.toFixed(2) + ' ' + '<?php echo __('kg'); ?>';
     document.getElementById('total_price').value = totalPrice.toFixed(2);
@@ -197,4 +197,3 @@ updateCalculations();
 </script>
 
 <?php include 'views/layout/footer.php'; ?>
-

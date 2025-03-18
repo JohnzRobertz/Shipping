@@ -193,10 +193,10 @@
                                             </td>
                                             <td>
                                                 <div class="d-flex justify-content-center gap-1">
-                                                    <a href="index.php?page=customer&action=view&id=<?= $customer['id'] ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="<?= __('view') ?>">
+                                                    <a href="index.php?page=customer&action=view&id=<?= $customer['id'] ?>" class="btn btn-sm btn-outline-secondary">
                                                         <i class="bi bi-eye"></i>
                                                     </a>
-                                                    <a href="index.php?page=customer&action=edit&id=<?= $customer['id'] ?>" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="<?= __('edit') ?>">
+                                                    <a href="index.php?page=customer&action=edit&id=<?= $customer['id'] ?>" class="btn btn-sm btn-outline-primary">
                                                         <i class="bi bi-pencil"></i>
                                                     </a>
                                                     <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger delete-btn" data-id="<?= $customer['id'] ?>" data-customer="<?= htmlspecialchars($customer['name']) ?>" data-bs-toggle="tooltip" title="<?= __('delete') ?>">
@@ -299,6 +299,7 @@
                 <p class="text-center"><?= __('confirm_delete_customer') ?> <span id="delete-customer" class="fw-bold"></span>?</p>
                 <p class="text-center text-danger small"><?= __('action_cannot_be_undone') ?></p>
             </div>
+            <!-- แก้ไขฟอร์มในส่วน Delete Modal -->
             <div class="modal-footer">
                 <form action="index.php?page=customer&action=delete" method="post">
                     <?php if (function_exists('getCsrfInput')): ?>
@@ -307,6 +308,7 @@
                         <input type="hidden" name="csrf_token" value="<?= isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '' ?>">
                     <?php endif; ?>
                     <input type="hidden" name="id" id="delete-id">
+                    <input type="hidden" name="confirm" value="yes">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= __('cancel') ?></button>
                     <button type="submit" class="btn btn-danger"><?= __('delete') ?></button>
                 </form>

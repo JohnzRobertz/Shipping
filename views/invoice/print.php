@@ -1,3 +1,34 @@
+<?php
+// ตรวจสอบว่ามีการส่ง ID มาหรือไม่
+if (!isset($_GET['id']) || empty($_GET['id'])) {
+    header('Location: index.php?page=invoice');
+    exit;
+}
+
+// ดึงข้อมูลใบแจ้งหนี้
+$id = $_GET['id'];
+$invoiceModel = new Invoice();
+$invoice = $invoiceModel->getInvoiceById($id);
+
+if (!$invoice) {
+    die('ไม่พบใบแจ้งหนี้ที่ต้องการ');
+}
+
+// ดึงข้อมูลลูกค้า
+$customerModel = new Customer();
+$customer = $customerModel->getCustomerById($invoice['customer_id']);
+
+if (!$customer) {
+    die('ไม่พบข้อมูลลูกค้า');
+}
+
+// ดึงข้อมูลการขนส่งที่เกี่ยวข้อง
+// ใช้ shipments ที่ส่งมาจาก controller ซึ่งมีข้อมูล origin และ destination แล้ว
+
+// ดึงข้อมูลค่าใช้จ่ายเพิ่มเติม
+$invoiceChargeModel = new InvoiceCharge();
+$additionalCharges = $invoiceChargeModel->getChargesByInvoiceId($id);
+?>
 <!DOCTYPE html>
 <html lang="<?= getCurrentLanguage() ?>">
 <head>
@@ -118,8 +149,8 @@
                     <tr>
                         <td><?= htmlspecialchars($shipment['tracking_number']) ?></td>
                         <td><?= __('shipping_service') ?> - <?= htmlspecialchars($shipment['transport_type'] ?? __('standard')) ?></td>
-                        <td><?= htmlspecialchars($shipment['origin']) ?></td>
-                        <td><?= htmlspecialchars($shipment['destination']) ?></td>
+                        <td><?= htmlspecialchars($shipment['origin'] ?? 'N/A') ?></td>
+                        <td><?= htmlspecialchars($shipment['destination'] ?? 'N/A') ?></td>
                         <td><?= number_format($shipment['weight'], 2) ?></td>
                         <td class="text-end"><?= number_format($shipment['total_price'], 2) ?></td>
                     </tr>
@@ -127,14 +158,14 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="4" class="text-end"><strong><?= __('subtotal') ?>:</strong></td>
+                    <td colspan="5" class="text-end"><strong><?= __('subtotal') ?>:</strong></td>
                     <td class="text-end"><strong><?= number_format($invoice['subtotal'] ?? $invoice['total_amount'], 2) ?></strong></td>
                 </tr>
                 
                 <?php if (!empty($additionalCharges)): ?>
                     <?php foreach ($additionalCharges as $charge): ?>
                         <tr>
-                            <td colspan="4" class="text-end">
+                            <td colspan="5" class="text-end">
                                 <?= htmlspecialchars($charge['description']) ?>
                                 <?php if ($charge['is_percentage'] == 1): ?>
                                     (<?= number_format($charge['amount'], 2) ?>%)
@@ -159,14 +190,14 @@
                     
                     <?php if (isset($invoice['tax_rate']) && $invoice['tax_rate'] > 0): ?>
                         <tr>
-                            <td colspan="4" class="text-end"><?= __('tax') ?> (<?= number_format($invoice['tax_rate'] * 100, 0) ?>%):</td>
+                            <td colspan="5" class="text-end"><?= __('tax') ?> (<?= number_format($invoice['tax_rate'] * 100, 0) ?>%):</td>
                             <td class="text-end"><?= number_format($invoice['tax_amount'], 2) ?></td>
                         </tr>
                     <?php endif; ?>
                 <?php endif; ?>
                 
                 <tr>
-                    <td colspan="4" class="text-end"><strong><?= __('total') ?>:</strong></td>
+                    <td colspan="5" class="text-end"><strong><?= __('total') ?>:</strong></td>
                     <td class="text-end"><strong><?= number_format($invoice['total_amount'], 2) ?></strong></td>
                 </tr>
             </tfoot>

@@ -2,19 +2,6 @@
 
 <div class="container-fluid px-4">
     <h1 class="mt-4"><?= __('add_new_customer') ?></h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="index.php?page=dashboard"><?= __('dashboard') ?></a></li>
-        <li class="breadcrumb-item"><a href="index.php?page=customer"><?= __('customers') ?></a></li>
-        <li class="breadcrumb-item active"><?= __('add_new_customer') ?></li>
-    </ol>
-    
-    <?php if(isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?= $_SESSION['error'] ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
     
     <div class="card mb-4">
         <div class="card-header">

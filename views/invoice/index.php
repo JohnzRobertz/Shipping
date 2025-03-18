@@ -228,7 +228,6 @@
                         </div>
                     </div>
                 </div>
-            </div>
             
             <!-- Invoices Table -->
             <div class="card mb-4">
@@ -325,7 +324,8 @@
                                             <i class="bi bi-arrow-down-up ms-1 text-muted small"></i>
                                         </div>
                                     </th>
-                                    <th width="10%" class="border-top-0 text-center"><?= __('shipments') ?></th>
+                                    <!-- ลบคอลัมน์ shipments ในส่วน <th> -->
+                                    <!-- <th width="10%" class="border-top-0 text-center"><?= __('shipments') ?></th> -->
                                     <th width="8%" class="border-top-0 text-center"><?= __('actions') ?></th>
                                 </tr>
                             </thead>
@@ -399,7 +399,8 @@
                                                     </span>
                                                 <?php endif; ?>
                                             </td>
-                                            <td class="text-center">
+                                            <!-- ลบคอลัมน์ shipments ในส่วน <td> ของแต่ละแถว -->
+                                            <!-- <td class="text-center">
                                                 <?php if (isset($invoice['total_shipments']) && isset($invoice['paid_shipments'])): ?>
                                                     <div class="d-flex align-items-center justify-content-center">
                                                         <div class="progress" style="width: 60px; height: 6px;">
@@ -421,7 +422,7 @@
                                                 <?php else: ?>
                                                     <span class="text-muted">-</span>
                                                 <?php endif; ?>
-                                            </td>
+                                            </td> -->
                                             <td>
                                                 <div class="d-flex justify-content-center gap-1">
                                                     <a href="index.php?page=invoice&action=view&id=<?= $invoice['id'] ?>" class="btn btn-sm btn-outline-secondary" data-bs-toggle="tooltip" title="<?= __('view') ?>">
@@ -435,23 +436,9 @@
                                                             <i class="bi bi-check-circle"></i>
                                                         </a>
                                                     <?php endif; ?>
-                                                    <div class="btn-group">
-                                                        <button type="button" class="btn btn-sm btn-outline-info dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-                                                            <i class="bi bi-file-pdf"></i>
-                                                        </button>
-                                                        <ul class="dropdown-menu dropdown-menu-end">
-                                                            <li>
-                                                                <a class="dropdown-item" href="invoice_pdf.php?id=<?= $invoice['id'] ?>&lang=th" target="_blank">
-                                                                    <i class="bi bi-file-pdf me-1"></i> <?= __('download_pdf_thai') ?>
-                                                                </a>
-                                                            </li>
-                                                            <li>
-                                                                <a class="dropdown-item" href="invoice_pdf.php?id=<?= $invoice['id'] ?>&lang=en" target="_blank">
-                                                                    <i class="bi bi-file-pdf me-1"></i> <?= __('download_pdf_english') ?>
-                                                                </a>
-                                                            </li>
-                                                        </ul>
-                                                    </div>
+                                                    <a href="index.php?page=invoice&action=print&id=<?= $invoice['id'] ?>" class="btn btn-sm btn-outline-info" target="_blank" data-bs-toggle="tooltip" title="<?= __('print') ?>">
+                                                        <i class="bi bi-printer"></i>
+                                                    </a>
                                                     <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger delete-btn" data-id="<?= $invoice['id'] ?>" data-invoice="<?= htmlspecialchars($invoice['invoice_number']) ?>" data-bs-toggle="tooltip" title="<?= __('delete') ?>">
                                                         <i class="bi bi-trash"></i>
                                                     </a>

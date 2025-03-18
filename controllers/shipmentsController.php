@@ -1,4 +1,5 @@
 <?php
+require_once 'lib/UlidGenerator.php';
 require_once 'models/Shipment.php';
 require_once 'models/Lot.php';
 
@@ -46,7 +47,7 @@ class ShipmentsController {
         // Status filter
         if (isset($_GET['status']) && !empty($_GET['status'])) {
             $status = sanitizeInput($_GET['status']);
-            $conditions[] = "status = ?";
+            $conditions[] = "s.status = ?";
             $params[] = $status;
         }
         
@@ -55,6 +56,13 @@ class ShipmentsController {
             $lotId = (int)$_GET['lot_id'];
             $conditions[] = "lot_id = ?";
             $params[] = $lotId;
+        }
+        
+        // Lot number filter
+        if (isset($_GET['lot_number']) && !empty($_GET['lot_number'])) {
+            $lotNumber = sanitizeInput($_GET['lot_number']);
+            $conditions[] = "l.lot_number = ?";
+            $params[] = $lotNumber;
         }
         
         // Customer code filter
@@ -164,7 +172,7 @@ class ShipmentsController {
         }
         
         // Get total shipments count
-        $countQuery = "SELECT COUNT(*) as total FROM shipments $whereClause";
+        $countQuery = "SELECT COUNT(*) as total FROM shipments s LEFT JOIN lots l ON s.lot_id = l.id $whereClause";
         $stmt = $this->db->prepare($countQuery);
         
         if (!empty($params)) {
@@ -180,6 +188,7 @@ class ShipmentsController {
         // Get shipments with pagination
         $query = "SELECT s.* 
                   FROM shipments s 
+                  LEFT JOIN lots l ON s.lot_id = l.id
                   $whereClause 
                   $orderBy 
                   LIMIT $offset, $limit";
@@ -225,7 +234,7 @@ class ShipmentsController {
         }
 
         // Get all lots for dropdown
-        $lots = $this->lotModel->getAll();
+        $lots = $this->lotModel->getAll(['status' => 'received']);
         
         require_once 'views/shipments/create.php';
     }
@@ -274,6 +283,7 @@ class ShipmentsController {
         
         // Prepare shipment data
         $shipmentData = [
+            'id' => UlidGenerator::generate(), // เพิ่มการสร้าง ULID
             'sender_name' => sanitizeInput($_POST['sender_name']),
             'sender_contact' => sanitizeInput($_POST['sender_contact']),
             'sender_phone' => sanitizeInput($_POST['sender_phone'] ?? ''),
@@ -286,15 +296,66 @@ class ShipmentsController {
             'height' => (float)$_POST['height'],
             'description' => sanitizeInput($_POST['description'] ?? ''),
             'customer_code' => sanitizeInput($_POST['customer_code'] ?? ''),
-            'lot_id' => !empty($_POST['lot_id']) ? (int)$_POST['lot_id'] : null,
+            'lot_number' => !empty($_POST['lot_number']) ? sanitizeInput($_POST['lot_number']) : null,
             'price' => !empty($_POST['price']) ? (float)$_POST['price'] : 0,
             'status' => 'received'
         ];
+        
+        // Debug log
+        error_log('Creating shipment with lot_number: ' . $shipmentData['lot_number']);
         
         // Create shipment
         $shipmentId = $this->shipmentModel->create($shipmentData);
         
         if ($shipmentId) {
+            // Add tracking history - เพิ่ม debug log
+            error_log('Adding tracking history for shipment ID: ' . $shipmentId);
+        
+            $location = '';
+            if (!empty($shipmentData['lot_number'])) {
+                $lot = $this->lotModel->getByLotNumber($shipmentData['lot_number']);
+                if ($lot) {
+                    $location = $lot['origin'];
+                    error_log('Found lot origin: ' . $location);
+                } else {
+                    error_log('Lot not found for lot_number: ' . $shipmentData['lot_number']);
+                }
+            }
+        
+            // ตรวจสอบว่าตาราง tracking_history มีอยู่หรือไม่
+            $checkTableStmt = $this->db->prepare("SHOW TABLES LIKE 'tracking_history'");
+            $checkTableStmt->execute();
+            if ($checkTableStmt->rowCount() == 0) {
+                error_log('tracking_history table does not exist, creating it');
+            
+                // สร้างตาราง tracking_history ถ้ายังไม่มี
+                $createTableSql = "
+                    CREATE TABLE IF NOT EXISTS tracking_history (
+                        id INT AUTO_INCREMENT PRIMARY KEY,
+                        shipment_id VARCHAR(26) NOT NULL,
+                        status VARCHAR(50) NOT NULL,
+                        location VARCHAR(255),
+                        description TEXT,
+                        timestamp DATETIME DEFAULT CURRENT_TIMESTAMP,
+                        INDEX (shipment_id)
+                    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+                ";
+                $this->db->exec($createTableSql);
+            }
+        
+            $trackingResult = $this->shipmentModel->addTrackingHistory(
+                $shipmentId,
+                'received',
+                $location,
+                'Shipment created with status: received'
+            );
+        
+            if ($trackingResult) {
+                error_log('Successfully added tracking history');
+            } else {
+                error_log('Failed to add tracking history');
+            }
+
             $_SESSION['success'] = __('shipment_created_successfully');
             header('Location: index.php?page=shipments&action=view&id=' . $shipmentId);
         } else {
@@ -307,162 +368,209 @@ class ShipmentsController {
 
     // Update the view method to properly fetch the package group
     public function view() {
-        // Check if user is logged in
-        if (!isLoggedIn()) {
-            header('Location: index.php?controller=auth&action=login');
-            exit;
-        }
-
-        // Check if ID is provided
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
         if (!isset($_GET['id']) || empty($_GET['id'])) {
-            header('Location: index.php?controller=shipments');
+            $_SESSION['error'] = "ไม่พบรหัสพัสดุที่ต้องการดู";
+            header('Location: index.php?page=shipments');
             exit;
         }
-
+        
         $id = $_GET['id'];
-        $shipment = $this->shipmentModel->getById($id);
-
-        if (!$shipment) {
-            $_SESSION['error'] = getTranslation('shipment_not_found');
-            header('Location: index.php?controller=shipments');
+        
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสพัสดุไม่ถูกต้อง";
+            header('Location: index.php?page=shipments');
             exit;
         }
-
-        // Get lot information if assigned
-        $lot = null;
-        if (isset($shipment['lot_id']) && $shipment['lot_id']) {
-            $lot = $this->lotModel->getById($shipment['lot_id']);
+        
+        $shipmentModel = new Shipment();
+        $shipment = $shipmentModel->getById($id);
+        
+        if (!$shipment) {
+            $_SESSION['error'] = "ไม่พบข้อมูลพัสดุ";
+            header('Location: index.php?page=shipments');
+            exit;
         }
-
-
-        require_once 'views/shipments/view.php';
+        
+        // ดึงข้อมูล lot ถ้ามี
+        $lot = null;
+        if (!empty($shipment['lot_id'])) {
+            $lotModel = new Lot();
+            $lot = $lotModel->getById($shipment['lot_id']);
+        }
+        
+        // ดึงประวัติการติดตาม
+        $trackingHistory = $shipmentModel->getTrackingHistory($id);
+        
+        // แสดงหน้า view
+        include 'views/shipments/view.php';
     }
 
     public function edit() {
-        // Check if user is logged in
-        if (!isLoggedIn()) {
-            header('Location: index.php?controller=auth&action=login');
-            exit;
-        }
-
-        // Check if ID is provided
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
         if (!isset($_GET['id']) || empty($_GET['id'])) {
-            header('Location: index.php?controller=shipments');
+            $_SESSION['error'] = "ไม่พบรหัสพัสดุที่ต้องการแก้ไข";
+            header('Location: index.php?page=shipments');
             exit;
         }
-
-        $id = $_GET['id'];
-        $shipment = $this->shipmentModel->getById($id);
-
-        if (!$shipment) {
-            $_SESSION['error'] = getTranslation('shipment_not_found');
-            header('Location: index.php?controller=shipments');
-            exit;
-        }
-
-        // Get all lots for dropdown
-        $lots = $this->lotModel->getAll();
         
-        require_once 'views/shipments/edit.php';
+        $id = $_GET['id'];
+        
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสพัสดุไม่ถูกต้อง";
+            header('Location: index.php?page=shipments');
+            exit;
+        }
+        
+        $shipmentModel = new Shipment();
+        $shipment = $shipmentModel->getById($id);
+        
+        if (!$shipment) {
+            $_SESSION['error'] = "ไม่พบข้อมูลพัสดุ";
+            header('Location: index.php?page=shipments');
+            exit;
+        }
+        
+        // ดึงข้อมูล lots ทั้งหมดสำหรับ dropdown
+        $lotModel = new Lot();
+        $lots = $lotModel->getAll();
+        
+        // แสดงหน้า edit
+        include 'views/shipments/edit.php';
     }
 
 // แก้ไขฟังก์ชัน update เพื่อรองรับฟิลด์การขนส่งภายในประเทศ
 public function update() {
-    // Check if user is logged in
-    if (!isLoggedIn()) {
-        header('Location: index.php?page=auth&action=login');
-        exit();
+    // ตรวจสอบว่ามีการส่งข้อมูลผ่าน POST หรือไม่
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: index.php?page=shipments');
+        exit;
     }
-
-    // Verify CSRF token
+    
+    // ตรวจสอบ CSRF token
     if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-        $_SESSION['error'] = __('error_occurred');
+        $_SESSION['error'] = "Invalid CSRF token";
         header('Location: index.php?page=shipments');
-        exit();
+        exit;
     }
     
-    // Get shipment ID
-    $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-    
-    if (!$id) {
-        $_SESSION['error'] = __('error_occurred');
+    // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+    if (!isset($_POST['id']) || empty($_POST['id'])) {
+        $_SESSION['error'] = "ไม่พบรหัสพัสดุที่ต้องการอัปเดต";
         header('Location: index.php?page=shipments');
-        exit();
+        exit;
     }
     
-    // Prepare shipment data
-    $shipmentData = [
-        'sender_name' => sanitizeInput($_POST['sender_name']),
-        'sender_contact' => sanitizeInput($_POST['sender_contact']),
-        'sender_phone' => sanitizeInput($_POST['sender_phone'] ?? ''),
-        'receiver_name' => sanitizeInput($_POST['receiver_name']),
-        'receiver_contact' => sanitizeInput($_POST['receiver_contact']),
-        'receiver_phone' => sanitizeInput($_POST['receiver_phone'] ?? ''),
-        'weight' => (float)$_POST['weight'],
-        'length' => (float)$_POST['length'],
-        'width' => (float)$_POST['width'],
-        'height' => (float)$_POST['height'],
-        'description' => sanitizeInput($_POST['description'] ?? ''),
-        'customer_code' => sanitizeInput($_POST['customer_code'] ?? ''),
-        'lot_id' => !empty($_POST['lot_id']) ? (int)$_POST['lot_id'] : null,
-        'price' => !empty($_POST['price']) ? (float)$_POST['price'] : 0,
-        
-        // Add domestic shipping fields
-        'domestic_carrier' => sanitizeInput($_POST['domestic_carrier'] ?? ''),
-        'domestic_tracking_number' => sanitizeInput($_POST['domestic_tracking_number'] ?? ''),
-        'handover_date' => !empty($_POST['handover_date']) ? $_POST['handover_date'] : null
+    $id = $_POST['id'];
+    
+    // ตรวจสอบความถูกต้องของ ULID
+    if (!UlidGenerator::isValid($id)) {
+        $_SESSION['error'] = "รหัสพัสดุไม่ถูกต้อง";
+        header('Location: index.php?page=shipments');
+        exit;
+    }
+    
+    // ดึงข้อมูลจากฟอร์ม
+    $data = [
+        'lot_number' => $_POST['lot_number'] ?? '', // เพิ่มการรับค่า lot_number
+        'customer_code' => $_POST['customer_code'] ?? '',
+        'sender_name' => $_POST['sender_name'] ?? '',
+        'sender_contact' => $_POST['sender_contact'] ?? '',
+        'sender_phone' => $_POST['sender_phone'] ?? '',
+        'receiver_name' => $_POST['receiver_name'] ?? '',
+        'receiver_contact' => $_POST['receiver_contact'] ?? '',
+        'receiver_phone' => $_POST['receiver_phone'] ?? '',
+        'weight' => $_POST['weight'] ?? 0,
+        'length' => $_POST['length'] ?? 0,
+        'width' => $_POST['width'] ?? 0,
+        'height' => $_POST['height'] ?? 0,
+        'description' => $_POST['description'] ?? '',
+        'price' => $_POST['price'] ?? 0,
+        'domestic_carrier' => $_POST['domestic_carrier'] ?? null,
+        'domestic_tracking_number' => $_POST['domestic_tracking_number'] ?? null,
+        'handover_date' => $_POST['handover_date'] ?? null,
     ];
     
-    // Update shipment
-    $success = $this->shipmentModel->update($id, $shipmentData);
-    
-    if ($success) {
-        $_SESSION['success'] = __('shipment_updated_successfully');
-        header('Location: index.php?page=shipments&action=view&id=' . $id);
-    } else {
-        $_SESSION['error'] = __('error_updating_shipment');
+    // ตรวจสอบข้อมูลที่จำเป็น
+    if (empty($data['sender_name']) || empty($data['sender_contact']) || 
+        empty($data['receiver_name']) || empty($data['receiver_contact'])) {
+        $_SESSION['error'] = "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน";
         header('Location: index.php?page=shipments&action=edit&id=' . $id);
+        exit;
     }
-    exit();
+    
+    // เพิ่ม debug log
+    error_log('Updating shipment with lot_number: ' . $data['lot_number']);
+    
+    // อัปเดตข้อมูล
+    $shipmentModel = new Shipment();
+    $result = $shipmentModel->update($id, $data);
+    
+    if ($result) {
+        $_SESSION['success'] = "อัปเดตข้อมูลพัสดุเรียบร้อยแล้ว";
+        header('Location: index.php?page=shipments&action=view&id=' . $id);
+        exit;
+    } else {
+        $_SESSION['error'] = "เกิดข้อผิดพลาดในการอัปเดตข้อมูล";
+        header('Location: index.php?page=shipments&action=edit&id=' . $id);
+        exit;
+    }
 }
 
     /**
      * Process shipment deletion
      */
     public function delete() {
-        // Check if user is logged in
-        if (!isLoggedIn()) {
-            header('Location: index.php?page=auth&action=login');
-            exit();
-        }
-
-        // Verify CSRF token
-        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ไม่พบรหัสพัสดุที่ต้องการลบ";
             header('Location: index.php?page=shipments');
-            exit();
+            exit;
         }
         
-        // Get shipment ID
-        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+        $id = $_GET['id'];
         
-        if (!$id) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสพัสดุไม่ถูกต้อง";
             header('Location: index.php?page=shipments');
-            exit();
+            exit;
         }
         
-        // Delete shipment
-        $success = $this->shipmentModel->delete($id);
-        
-        if ($success) {
-            $_SESSION['success'] = __('delete_success');
-        } else {
-            $_SESSION['error'] = __('error_deleting_shipment');
+        // ลบประวัติการติดตามก่อน (เพื่อแก้ปัญหา foreign key constraints)
+        $this->db->beginTransaction();
+        try {
+            // ลบประวัติการติดตาม
+            $deleteTrackingStmt = $this->db->prepare("DELETE FROM tracking_history WHERE shipment_id = :id");
+            $deleteTrackingStmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $deleteTrackingStmt->execute();
+            
+            // ลบความสัมพันธ์กับใบแจ้งหนี้ (ถ้ามี)
+            $deleteInvoiceRelStmt = $this->db->prepare("DELETE FROM invoice_shipments WHERE shipment_id = :id");
+            $deleteInvoiceRelStmt->bindParam(':id', $id, PDO::PARAM_STR);
+            $deleteInvoiceRelStmt->execute();
+            
+            // ลบพัสดุ
+            $shipmentModel = new Shipment();
+            $result = $shipmentModel->delete($id);
+            
+            if ($result) {
+                $this->db->commit();
+                $_SESSION['success'] = "ลบข้อมูลพัสดุเรียบร้อยแล้ว";
+            } else {
+                $this->db->rollBack();
+                $_SESSION['error'] = "เกิดข้อผิดพลาดในการลบข้อมูล";
+            }
+        } catch (Exception $e) {
+            $this->db->rollBack();
+            $_SESSION['error'] = "เกิดข้อผิดพลาดในการลบข้อมูล: " . $e->getMessage();
+            error_log("Error deleting shipment: " . $e->getMessage());
         }
         
         header('Location: index.php?page=shipments');
-        exit();
+        exit;
     }
 
     public function assignLot() {
@@ -507,10 +615,15 @@ public function update() {
         }
 
         $id = $_POST['id'];
-        $lotId = isset($_POST['lot_id']) && !empty($_POST['lot_id']) ? $_POST['lot_id'] : null;
-
-        // Update shipment lot
-        $result = $this->shipmentModel->updateLot($id, $lotId);
+        
+        // ถ้ามี lot_number ให้ใช้ lot_number แทน lot_id
+        if (isset($_POST['lot_number']) && !empty($_POST['lot_number'])) {
+            $lotNumber = $_POST['lot_number'];
+            $result = $this->shipmentModel->updateLotByNumber($id, $lotNumber);
+        } else {
+            $lotId = isset($_POST['lot_id']) && !empty($_POST['lot_id']) ? $_POST['lot_id'] : null;
+            $result = $this->shipmentModel->updateLot($id, $lotId);
+        }
 
         if ($result) {
             $_SESSION['success'] = getTranslation('lot_assigned_successfully');
@@ -528,7 +641,8 @@ public function update() {
         // ตรวจสอบว่ามีการส่ง ID มาหรือไม่
         if (!isset($_GET['id'])) {
             $_SESSION['error'] = getTranslation('shipment_not_found');
-            redirect('index.php?controller=shipments');
+            header('Location: index.php?controller=shipments');
+            exit;
         }
         
         $id = $_GET['id'];
@@ -538,17 +652,19 @@ public function update() {
         // ตรวจสอบว่าพบพัสดุหรือไม่
         if (!$shipment) {
             $_SESSION['error'] = getTranslation('shipment_not_found');
-            redirect('index.php?controller=shipments');
+            header('Location: index.php?controller=shipments');
+            exit;
         }
         
         // ถ้ามีการส่งฟอร์ม
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // ตรวจสอบ CSRF token
-            if (!isset($_POST['csrf_token']) || !validateCSRFToken($_POST['csrf_token'])) {
+            if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
                 $_SESSION['error'] = getTranslation('invalid_csrf_token');
-                redirect('index.php?controller=shipments&action=updateStatus&id=' . $id);
+                header('Location: index.php?controller=shipments&action=updateStatus&id=' . $id);
+                exit;
             }
-            
+        
             // รับค่าจากฟอร์ม
             $status = $_POST['status'] ?? '';
             $location = $_POST['location'] ?? '';
@@ -556,41 +672,41 @@ public function update() {
             $domestic_carrier = $_POST['domestic_carrier'] ?? '';
             $domestic_tracking_number = $_POST['domestic_tracking_number'] ?? '';
             $handover_date = $_POST['handover_date'] ?? '';
-            
+        
             // อัพเดทสถานะพัสดุ
             $updateData = [
-                'status' => $status,
-                'location' => $location
+                'status' => $status
             ];
-            
-            // ถ��าเป็นสถานะที่เกี่ยวข้องกับการขนส่งภายในประเทศ ให้บันทึกข้อมูลเพิ่มเติม
+        
+            // ถ้าเป็นสถานะที่เกี่ยวข้องกับการขนส่งภายในประเทศ ให้บันทึกข้อมูลเพิ่มเติม
             if ($status == 'out_for_delivery' || $status == 'local_delivery') {
                 $updateData['domestic_carrier'] = $domestic_carrier;
                 $updateData['domestic_tracking_number'] = $domestic_tracking_number;
                 $updateData['handover_date'] = $handover_date;
             }
-            
+        
             // บันทึกข้อมูล
             $result = $shipmentModel->update($id, $updateData);
-            
+        
             // บันทึกประวัติการเปลี่ยนสถานะ
-            $trackingHistoryModel = new TrackingHistory();
-            $trackingHistoryModel->create([
-                'shipment_id' => $id,
-                'status' => $status,
-                'location' => $location,
-                'description' => $description,
-                'created_at' => date('Y-m-d H:i:s')
-            ]);
-            
-            if ($result) {
+            $trackingResult = $shipmentModel->addTrackingHistory(
+                $id, 
+                $status, 
+                $location, 
+                $description
+            );
+        
+            if ($result && $trackingResult) {
                 $_SESSION['success'] = getTranslation('status_updated_successfully');
-                redirect('index.php?controller=shipments&action=view&id=' . $id);
+                header('Location: index.php?page=shipments&action=view&id=' . $id);
+                exit;
             } else {
                 $_SESSION['error'] = getTranslation('failed_to_update_status');
+                header('Location: index.php?page=shipments&action=updateStatus&id=' . $id);
+                exit;
             }
         }
-        
+    
         // โหลดข้อมูลที่จำเป็น
         $statusOptions = [
             'received' => getTranslation('status_received'),
@@ -602,11 +718,10 @@ public function update() {
             'delivered' => getTranslation('status_delivered'),
             'cancelled' => getTranslation('status_cancelled')
         ];
-        
+    
         // โหลดประวัติการติดตาม
-        $trackingHistoryModel = new TrackingHistory();
-        $trackingHistory = $trackingHistoryModel->getByShipmentId($id);
-        
+        $trackingHistory = $shipmentModel->getTrackingHistory($id);
+    
         // แสดงหน้า update_status
         include 'views/shipments/update_status.php';
     }
@@ -653,12 +768,12 @@ public function update() {
                 'tracking_number', 'sender_name', 'sender_contact', 'sender_phone',
                 'receiver_name', 'receiver_contact', 'receiver_phone', 'weight',
                 'length', 'width', 'height', 'transport_type', 'customer_code',
-                'description', 'price', 'lot_id'
+                'description', 'price', 'lot_number'
             ];
         } else if ($template_type === 'update') {
             // Headers for updating existing shipments
             $headers = [
-                'tracking_number', 'lot_id', 'domestic_carrier',
+                'tracking_number', 'lot_number', 'domestic_carrier',
                 'domestic_tracking_number', 'handover_date', 'status'
             ];
         } else {
@@ -676,11 +791,11 @@ public function update() {
                 'TRK123456789', 'John Doe', 'john@example.com', '1234567890',
                 'Jane Smith', 'jane@example.com', '0987654321', '5.5',
                 '30', '20', '15', '1', 'CUST001',
-                'Sample package', '100.50', '1'
+                'Sample package', '100.50', 'LOT-SEA-202401-001'
             ];
         } else {
             $sample_data = [
-                'TRK123456789', '1', 'DHL',
+                'TRK123456789', 'LOT-SEA-202401-001', 'DHL',
                 'DHL123456789', date('Y-m-d'), 'local_delivery'
             ];
         }
@@ -740,7 +855,7 @@ public function update() {
             $_SESSION['error'] = 'Failed to read the CSV file headers.';
             fclose($handle);
             header('Location: index.php?page=shipments&action=import');
-            exit;
+        exit;
         }
         
         // Convert headers to lowercase for case-insensitive comparison
@@ -753,12 +868,12 @@ public function update() {
                 'tracking_number', 'sender_name', 'sender_contact', 'sender_phone',
                 'receiver_name', 'receiver_contact', 'receiver_phone', 'weight',
                 'length', 'width', 'height', 'transport_type', 'customer_code',
-                'description', 'price', 'lot_id'
+                'description', 'price', 'lot_number'
             ];
         } else if ($import_type === 'update') {
             $required_headers = ['tracking_number'];
             $all_headers = [
-                'tracking_number', 'lot_id', 'domestic_carrier',
+                'tracking_number', 'lot_number', 'domestic_carrier',
                 'domestic_tracking_number', 'handover_date', 'status'
             ];
         } else {
@@ -864,8 +979,8 @@ public function update() {
             trim($data[$header_map['description']]) : '';
         $price = isset($header_map['price']) && isset($data[$header_map['price']]) ? 
             trim($data[$header_map['price']]) : '';
-        $lot_id = isset($header_map['lot_id']) && isset($data[$header_map['lot_id']]) ? 
-            trim($data[$header_map['lot_id']]) : '';
+        $lot_number = isset($header_map['lot_number']) && isset($data[$header_map['lot_number']]) ? 
+            trim($data[$header_map['lot_number']]) : '';
         
         // Validate required fields
         if (empty($tracking_number)) {
@@ -903,6 +1018,7 @@ public function update() {
         
         // Prepare shipment data
         $shipmentData = [
+            'id' => UlidGenerator::generate(), // เพิ่มการสร้าง ULID
             'tracking_number' => $tracking_number,
             'sender_name' => $sender_name,
             'sender_contact' => $sender_contact,
@@ -918,7 +1034,7 @@ public function update() {
             'customer_code' => $customer_code,
             'description' => $description,
             'price' => !empty($price) ? (float) $price : 0,
-            'lot_id' => !empty($lot_id) ? (int) $lot_id : null,
+            'lot_number' => $lot_number, // ใช้ lot_number แทน lot_id
             'status' => 'pending'
         ];
         
@@ -937,8 +1053,8 @@ public function update() {
         // Extract data from the row using the header map
         $tracking_number = isset($header_map['tracking_number']) && isset($data[$header_map['tracking_number']]) ? 
             trim($data[$header_map['tracking_number']]) : '';
-        $lot_id = isset($header_map['lot_id']) && isset($data[$header_map['lot_id']]) ? 
-            trim($data[$header_map['lot_id']]) : '';
+        $lot_number = isset($header_map['lot_number']) && isset($data[$header_map['lot_number']]) ? 
+            trim($data[$header_map['lot_number']]) : '';
         $domestic_carrier = isset($header_map['domestic_carrier']) && isset($data[$header_map['domestic_carrier']]) ? 
             trim($data[$header_map['domestic_carrier']]) : '';
         $domestic_tracking_number = isset($header_map['domestic_tracking_number']) && isset($data[$header_map['domestic_tracking_number']]) ? 
@@ -963,12 +1079,8 @@ public function update() {
         $updateData = [];
         
         // Update lot if provided
-        if (!empty($lot_id)) {
-            $lot = $this->lotModel->getById($lot_id);
-            if (!$lot) {
-                return ['success' => false, 'message' => "Row $row_number: Invalid lot ID."];
-            }
-            $updateData['lot_id'] = (int) $lot_id;
+        if (!empty($lot_number)) {
+            $updateData['lot_number'] = $lot_number;
         }
         
         // Update domestic shipping information if provided
@@ -1114,6 +1226,9 @@ public function update() {
                     case 'in_transit':
                         $statusText = 'อยู่ระหว่างขนส่ง';
                         break;
+                    case 'local_delivery': // แก้ไขจาก status_local_delivery เป็น local_delivery
+                        $statusText = 'ส่งในประเทศ';
+                        break;
                     case 'arrived_destination':
                         $statusText = 'ถึงปลายทางแล้ว';
                         break;
@@ -1235,4 +1350,3 @@ public function update() {
     }
 }
 ?>
-

@@ -66,6 +66,7 @@ function isDevelopment() {
     return true; // Change this based on your environment configuration
 }
 
+// Remove the first formatDate function (around line 76)
 /**
  * Format date to local format
  * 
@@ -73,9 +74,10 @@ function isDevelopment() {
  * @param string $format Format to use
  * @return string Formatted date
  */
-function formatDate($date, $format = 'Y-m-d H:i:s') {
-    return date($format, strtotime($date));
-}
+// Remove or comment out this duplicate function
+// function formatDate($date, $format = 'Y-m-d H:i:s') {
+//     return date($format, strtotime($date));
+// }
 
 /**
  * Generate a random string
@@ -96,24 +98,18 @@ function generateRandomString($length = 10) {
 // เพิ่มฟังก์ชัน getStatusColor ถ้ายังไม่มี
 function getStatusColor($status) {
     switch ($status) {
-        case 'received':
-            return 'secondary';
-        case 'processing':
-            return 'info';
+        case 'pending':
+            return 'warning';
         case 'in_transit':
-            return 'primary';
-        case 'arrived_destination':
             return 'info';
-        case 'local_delivery':
-            return 'warning';
-        case 'out_for_delivery':
-            return 'warning';
         case 'delivered':
             return 'success';
         case 'cancelled':
             return 'danger';
-        default:
+        case 'on_hold':
             return 'secondary';
+        default:
+            return 'primary';
     }
 }
 
@@ -153,6 +149,32 @@ function formatWeight($weight, $decimals = 2) {
 }
 
 /**
+ * Validate CSRF token
+ * 
+ * @param string $token Token to validate (optional)
+ * @return bool True if token is valid
+ */
+function validateCSRFToken($token = null) {
+    if ($token === null && isset($_POST['csrf_token'])) {
+        $token = $_POST['csrf_token'];
+    }
+    
+    return verifyCSRFToken($token);
+}
+
+/**
+ * Redirect to a URL
+ * 
+ * @param string $url URL to redirect to
+ * @param int $statusCode HTTP status code (default: 302)
+ * @return void
+ */
+function redirect($url, $statusCode = 302) {
+    header('Location: ' . $url, true, $statusCode);
+    exit();
+}
+
+/**
  * Get transport type label
  * 
  * @param string $type The transport type
@@ -167,5 +189,40 @@ function getTransportTypeLabel($type) {
         case 'land': return $lang['land'] ?? 'Land';
         default: return $type;
     }
+}
+
+/**
+ * Get readable text for shipment status
+ * 
+ * @param string $status Shipment status
+ * @return string Human-readable status
+ */
+function getStatusText($status) {
+    global $lang;
+    
+    $statusMap = [
+        'pending' => $lang['status_pending'] ?? 'Pending',
+        'in_transit' => $lang['status_in_transit'] ?? 'In Transit',
+        'delivered' => $lang['status_delivered'] ?? 'Delivered',
+        'cancelled' => $lang['status_cancelled'] ?? 'Cancelled',
+        'on_hold' => $lang['status_on_hold'] ?? 'On Hold'
+    ];
+    
+    return $statusMap[$status] ?? $status;
+}
+
+// Keep only the second formatDate function (around line 218)
+/**
+ * Format date in user-friendly format
+ * 
+ * @param string $dateString Date string from database
+ * @param string $format Optional custom format
+ * @return string Formatted date
+ */
+function formatDate($dateString, $format = 'd M Y H:i') {
+    if (empty($dateString)) return 'N/A';
+    
+    $date = new DateTime($dateString);
+    return $date->format($format);
 }
 

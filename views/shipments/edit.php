@@ -17,10 +17,11 @@
                 <div class="col-md-12">
                     <h4 class="card-title mb-3"><?php echo __('lot_information'); ?></h4>
                     <div class="mb-3">
-                        <label for="lot_id" class="form-label"><?php echo __('select_lot'); ?> <span class="text-danger">*</span></label>
-                        <select name="lot_id" id="lot_id" class="form-select" required>
+                        <label for="lot_number" class="form-label"><?php echo __('lot_number'); ?> <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control" id="lot_number" name="lot_number" list="lot_numbers" value="<?php echo htmlspecialchars($shipment['lot_number'] ?? ''); ?>" placeholder="<?php echo __('enter_lot_number'); ?>">
+                        <datalist id="lot_numbers">
                             <?php foreach ($lots as $lot): ?>
-                                <option value="<?php echo $lot['id']; ?>" <?php echo $shipment['lot_id'] == $lot['id'] ? 'selected' : ''; ?>>
+                                <option value="<?php echo $lot['lot_number']; ?>">
                                     <?php 
                                     $typeIcon = '';
                                     switch ($lot['lot_type']) {
@@ -41,7 +42,7 @@
                                     ?>
                                 </option>
                             <?php endforeach; ?>
-                        </select>
+                        </datalist>
                     </div>
                 </div>
             </div>

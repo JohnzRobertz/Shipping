@@ -1,4 +1,5 @@
 <?php
+require_once 'lib/UlidGenerator.php';
 require_once 'models/Lot.php';
 require_once 'models/Shipment.php';
 
@@ -136,22 +137,36 @@ class LotsController {
      * Display lot details
      */
     public function view() {
-        // Get lot ID
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-        
-        // Get lot data
-        $lot = $this->lotModel->getById($id);
-        
-        if (!$lot) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ไม่พบรหัสล็อตที่ต้องการดู";
             header('Location: index.php?page=lots');
-            exit();
+            exit;
         }
         
-        // Get shipments in this lot
-        $shipments = $this->shipmentModel->getAll(['lot_id' => $id]);
+        $id = $_GET['id'];
         
-        // Load view
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสล็อตไม่ถูกต้อง";
+            header('Location: index.php?page=lots');
+            exit;
+        }
+        
+        $lotModel = new Lot();
+        $lot = $lotModel->getById($id);
+        
+        if (!$lot) {
+            $_SESSION['error'] = "ไม่พบข้อมูลล็อต";
+            header('Location: index.php?page=lots');
+            exit;
+        }
+        
+        // ดึงข้อมูลพัสดุในล็อตนี้
+        $shipmentModel = new Shipment();
+        $shipments = $shipmentModel->getAll(['lot_id' => $id]);
+        
+        // แสดงหน้า view
         include 'views/lots/view.php';
     }
     
@@ -159,19 +174,32 @@ class LotsController {
      * Display lot edit form
      */
     public function edit() {
-        // Get lot ID
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
-        
-        // Get lot data
-        $lot = $this->lotModel->getById($id);
-        
-        if (!$lot) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ไม่พบรหัสล็อตที่ต้องการแก้ไข";
             header('Location: index.php?page=lots');
-            exit();
+            exit;
         }
         
-        // Load view
+        $id = $_GET['id'];
+        
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสล็อตไม่ถูกต้อง";
+            header('Location: index.php?page=lots');
+            exit;
+        }
+        
+        $lotModel = new Lot();
+        $lot = $lotModel->getById($id);
+        
+        if (!$lot) {
+            $_SESSION['error'] = "ไม่พบข้อมูลล็อต";
+            header('Location: index.php?page=lots');
+            exit;
+        }
+        
+        // แสดงหน้า edit
         include 'views/lots/edit.php';
     }
     
@@ -179,104 +207,156 @@ class LotsController {
      * Process lot update
      */
     public function update() {
-        // Verify CSRF token
-        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบว่ามีการส่งข้อมูลผ่าน POST หรือไม่
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?page=lots');
-            exit();
+            exit;
         }
         
-        // Get lot ID
-        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+        // ตรวจสอบ CSRF token
+        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
+            $_SESSION['error'] = "Invalid CSRF token";
+            header('Location: index.php?page=lots');
+            exit;
+        }
         
-        // Validate input
-        $departureDate = sanitizeInput($_POST['departure_date']);
-        $arrivalDate = sanitizeInput($_POST['arrival_date']);
-        $origin = sanitizeInput($_POST['origin']);
-        $destination = sanitizeInput($_POST['destination']);
-        $status = sanitizeInput($_POST['status']);
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+        if (!isset($_POST['id']) || empty($_POST['id'])) {
+            $_SESSION['error'] = "ไม่พบรหัสล็อตที่ต้องการอัปเดต";
+            header('Location: index.php?page=lots');
+            exit;
+        }
         
-        // Update lot
-        $lotData = [
-            'departure_date' => $departureDate,
-            'arrival_date' => $arrivalDate,
-            'origin' => $origin,
-            'destination' => $destination,
-            'status' => $status
+        $id = $_POST['id'];
+        
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสล็อตไม่ถูกต้อง";
+            header('Location: index.php?page=lots');
+            exit;
+        }
+        
+        // ดึงข้อมูลจากฟอร์ม
+        $data = [
+            'origin' => $_POST['origin'] ?? '',
+            'destination' => $_POST['destination'] ?? '',
+            'departure_date' => $_POST['departure_date'] ?? '',
+            'arrival_date' => $_POST['arrival_date'] ?? '',
+            'status' => $_POST['status'] ?? 'received',
         ];
         
-        $success = $this->lotModel->update($id, $lotData);
-        
-        if ($success) {
-            $_SESSION['success'] = __('update_success');
-        } else {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบข้อมูลที่จำเป็น
+        if (empty($data['origin']) || empty($data['destination']) || 
+            empty($data['departure_date']) || empty($data['arrival_date'])) {
+            $_SESSION['error'] = "กรุณากรอกข้อมูลที่จำเป็นให้ครบถ้วน";
+            header('Location: index.php?page=lots&action=edit&id=' . $id);
+            exit;
         }
         
-        header('Location: index.php?page=lots&action=view&id=' . $id);
-        exit();
+        // อัปเดตข้อมูล
+        $lotModel = new Lot();
+        $result = $lotModel->update($id, $data);
+        
+        if ($result) {
+            $_SESSION['success'] = "อัปเดตข้อมูลล็อตเรียบร้อยแล้ว";
+            header('Location: index.php?page=lots&action=view&id=' . $id);
+            exit;
+        } else {
+            $_SESSION['error'] = "เกิดข้อผิดพลาดในการอัปเดตข้อมูล";
+            header('Location: index.php?page=lots&action=edit&id=' . $id);
+            exit;
+        }
     }
     
     /**
      * Process lot deletion
      */
     public function delete() {
-        // Verify CSRF token
-        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+        if (!isset($_GET['id']) || empty($_GET['id'])) {
+            $_SESSION['error'] = "ไม่พบรหัสล็อตที่ต้องการลบ";
             header('Location: index.php?page=lots');
-            exit();
+            exit;
         }
         
-        // Get lot ID
-        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
+        $id = $_GET['id'];
         
-        // Delete lot
-        $success = $this->lotModel->delete($id);
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสล็อตไม่ถูกต้อง";
+            header('Location: index.php?page=lots');
+            exit;
+        }
         
-        if ($success) {
-            $_SESSION['success'] = __('delete_success');
+        $lotModel = new Lot();
+        $result = $lotModel->delete($id);
+        
+        if ($result) {
+            $_SESSION['success'] = "ลบข้อมูลล็อตเรียบร้อยแล้ว";
         } else {
-            $_SESSION['error'] = __('error_occurred');
+            $_SESSION['error'] = "เกิดข้อผิดพลาดในการลบข้อมูล หรือล็อตนี้มีพัสดุอยู่";
         }
         
         header('Location: index.php?page=lots');
-        exit();
+        exit;
     }
     
     /**
      * Update lot status
      */
     public function updateStatus() {
-        // Verify CSRF token
-        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
-            $_SESSION['error'] = __('error_occurred');
+        // ตรวจสอบว่ามีการส่งข้อมูลผ่าน POST หรือไม่
+        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
             header('Location: index.php?page=lots');
-            exit();
+            exit;
         }
         
-        // Get lot ID and status
-        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-        $status = sanitizeInput($_POST['status']);
+        // ตรวจสอบ CSRF token
+        if (!isset($_POST['csrf_token']) || !verifyCSRFToken($_POST['csrf_token'])) {
+            $_SESSION['error'] = "Invalid CSRF token";
+            header('Location: index.php?page=lots');
+            exit;
+        }
         
-        // Update status with shipments
-        $success = $this->lotModel->updateStatusWithShipments($id, $status);
+        // ตรวจสอบว่ามี ID ส่งมาหรือไม่
+        if (!isset($_POST['id']) || empty($_POST['id'])) {
+            $_SESSION['error'] = "ไม่พบรหัสล็อตที่ต้องการอัปเดตสถานะ";
+            header('Location: index.php?page=lots');
+            exit;
+        }
         
-        if ($success) {
-            $_SESSION['success'] = __('update_success');
+        $id = $_POST['id'];
+        
+        // ตรวจสอบความถูกต้องของ ULID
+        if (!UlidGenerator::isValid($id)) {
+            $_SESSION['error'] = "รหัสล็อตไม่ถูกต้อง";
+            header('Location: index.php?page=lots');
+            exit;
+        }
+        
+        $status = $_POST['status'] ?? 'received';
+        
+        // Debug log
+        error_log('Updating lot status: ' . $id . ' to ' . $status);
+        
+        $lotModel = new Lot();
+        $result = $lotModel->updateStatusWithShipments($id, $status);
+        
+        if ($result) {
+            $_SESSION['success'] = "อัปเดตสถานะล็อตและพัสดุเรียบร้อยแล้ว";
         } else {
-            $_SESSION['error'] = __('error_occurred');
+            $_SESSION['error'] = "เกิดข้อผิดพลาดในการอัปเดตสถานะ";
         }
         
         header('Location: index.php?page=lots&action=view&id=' . $id);
-        exit();
+        exit;
     }
     
     /**
      * Export lots data
      */
     public function export() {
-        // Get filter parameters
+        // GET filter parameters
         $lotType = isset($_GET['lot_type']) ? sanitizeInput($_GET['lot_type']) : '';
         $status = isset($_GET['status']) ? sanitizeInput($_GET['status']) : '';
         $search = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';

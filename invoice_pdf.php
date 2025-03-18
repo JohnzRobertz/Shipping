@@ -56,8 +56,46 @@ if (!$customer) {
     die('ไม่พบข้อมูลลูกค้า');
 }
 
-// ดึงข้อมูลการขนส่งที่เกี่ยวข้อง
-$shipments = $invoiceModel->getShipmentsByInvoiceId($id);
+// ดึงข้อมูล shipments พร้อมข้อมูล lot
+global $db;
+$sql = "SELECT s.*, l.origin, l.destination, l.lot_number, l.lot_type 
+        FROM shipments s 
+        LEFT JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+        LEFT JOIN lots l ON s.lot_id = l.id 
+        WHERE is_rel.invoice_id = :invoice_id";
+
+$stmt = $db->prepare($sql);
+$stmt->bindParam(':invoice_id', $id);
+$stmt->execute();
+$shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+// ถ้าไม่มีข้อมูล origin และ destination ให้ลองดึงจากตาราง shipments โดยตรง
+if (!empty($shipments)) {
+    foreach ($shipments as &$shipment) {
+        // ถ้า origin หรือ destination เป็น NULL ให้ตรวจสอบว่ามีในตาราง shipments หรือไม่
+        if (empty($shipment['origin']) && isset($shipment['origin_address'])) {
+            $shipment['origin'] = $shipment['origin_address'];
+        }
+        
+        if (empty($shipment['destination']) && isset($shipment['destination_address'])) {
+            $shipment['destination'] = $shipment['destination_address'];
+        }
+    }
+    unset($shipment); // ยกเลิกการอ้างอิง
+}
+
+// เพิ่มโค้ดนี้หลังจากดึงข้อมูล shipments เพื่อตรวจสอบข้อมูลที่ได้
+if (isset($_GET['debug']) && $_GET['debug'] == 1) {
+    echo '<pre>';
+    print_r($shipments);
+    echo '</pre>';
+    exit;
+}
+
+// ดึงข้อมูลค่าใช้จ่ายเพิ่มเติม
+require_once 'models/InvoiceCharge.php';
+$invoiceChargeModel = new InvoiceCharge();
+$additionalCharges = $invoiceChargeModel->getChargesByInvoiceId($id);
 
 // กำหนดภาษา (th หรือ en)
 $language = isset($_GET['lang']) && $_GET['lang'] == 'en' ? 'en' : 'th';
@@ -87,8 +125,10 @@ $texts = [
         'account_name' => 'Account Name: Shipping Express Co., Ltd.',
         'account_number' => 'Account Number: 123-4-56789-0',
         'reference' => 'Reference:',
-        'tracking_number' => 'Tracking Number',
+        'tracking_number' => 'Tracking No.',
         'description' => 'Description',
+        'origin' => 'Origin',
+        'destination' => 'Destination',
         'weight' => 'Weight (kg)',
         'amount' => 'Amount (THB)',
         'shipping_service' => 'Shipping Service -',
@@ -105,6 +145,9 @@ $texts = [
         'details' => 'Details',
         'page' => 'Page',
         'continued' => 'continued',
+        'tax' => 'Tax',
+        'kg' => 'kg',
+        'currency' => 'THB',
     ],
     'th' => [
         'invoice' => 'ใบแจ้งหนี้',
@@ -129,8 +172,10 @@ $texts = [
         'account_name' => 'ชื่อบัญชี: บริษัท ขนส่งทันใจ จำกัด',
         'account_number' => 'เลขที่บัญชี: 123-4-56789-0',
         'reference' => 'อ้างอิง:',
-        'tracking_number' => 'หมายเลขติดตาม',
+        'tracking_number' => 'เลขติดตาม',
         'description' => 'รายละเอียด',
+        'origin' => 'ต้นทาง',
+        'destination' => 'ปลายทาง',
         'weight' => 'น้ำหนัก (กก.)',
         'amount' => 'จำนวนเงิน (บาท)',
         'shipping_service' => 'บริการขนส่ง -',
@@ -147,6 +192,9 @@ $texts = [
         'details' => 'รายละเอียด',
         'page' => 'หน้า',
         'continued' => 'ต่อ',
+        'tax' => 'ภาษี',
+        'kg' => 'กก.',
+        'currency' => 'บาท',
     ]
 ];
 
@@ -238,12 +286,6 @@ $pdf->SetAutoPageBreak(TRUE, 15);
 
 // ตั้งค่าฟอนต์
 if ($language == 'th') {
-    // ตรวจสอบว่ามีฟอนต์ภาษาไทยหรือไม่
-    $fontPath = __DIR__ . '/assets/fonts/THSarabunNew.ttf';
-    if (!file_exists($fontPath)) {
-        die('ไม่พบไฟล์ฟอนต์: ' . $fontPath);
-    }
-    
     // ใช้ฟอนต์ที่มีอยู่แล้วใน TCPDF
     $pdf->SetFont('freeserif', '', 10);
 } else {
@@ -314,16 +356,26 @@ $pdf->SetFont('freeserif', 'B', 10);
 $pdf->Cell(0, 6, $texts[$language]['invoice'] . ' ' . $texts[$language]['details'], 0, 1);
 
 $pdf->SetFillColor(242, 242, 242);
-$pdf->SetFont('freeserif', 'B', 9);
+$pdf->SetFont('freeserif', 'B', 8); // ลดขนาดฟอนต์ลงเพื่อให้ข้อความไม่ล้น
+
+// ปรับขนาดคอลัมน์ให้เหมาะสม
+$trackingWidth = 30;
+$descWidth = 45;
+$originWidth = 30;
+$destWidth = 30;
+$weightWidth = 20;
+$amountWidth = 25;
 
 // หัวตาราง
-$pdf->Cell(50, 7, $texts[$language]['tracking_number'], 1, 0, 'L', true);
-$pdf->Cell(80, 7, $texts[$language]['description'], 1, 0, 'L', true);
-$pdf->Cell(25, 7, $texts[$language]['weight'], 1, 0, 'C', true);
-$pdf->Cell(25, 7, $texts[$language]['amount'], 1, 1, 'R', true);
+$pdf->Cell($trackingWidth, 7, $texts[$language]['tracking_number'], 1, 0, 'C', true);
+$pdf->Cell($descWidth, 7, $texts[$language]['description'], 1, 0, 'C', true);
+$pdf->Cell($originWidth, 7, $texts[$language]['origin'], 1, 0, 'C', true);
+$pdf->Cell($destWidth, 7, $texts[$language]['destination'], 1, 0, 'C', true);
+$pdf->Cell($weightWidth, 7, $texts[$language]['weight'], 1, 0, 'C', true);
+$pdf->Cell($amountWidth, 7, $texts[$language]['amount'], 1, 1, 'C', true);
 
 // รายการสินค้า
-$pdf->SetFont('freeserif', '', 9);
+$pdf->SetFont('freeserif', '', 8); // ลดขนาดฟอนต์ลงเพื่อให้ข้อความไม่ล้น
 $fill = false;
 foreach ($shipments as $shipment) {
     // ตรวจสอบว่าต้องขึ้นหน้าใหม่หรือไม่
@@ -335,31 +387,55 @@ foreach ($shipments as $shipment) {
         $pdf->Cell(0, 6, $texts[$language]['invoice'] . ' ' . $texts[$language]['details'] . ' (' . $texts[$language]['continued'] . ')', 0, 1);
         
         $pdf->SetFillColor(242, 242, 242);
-        $pdf->SetFont('freeserif', 'B', 9);
+        $pdf->SetFont('freeserif', 'B', 8);
         
-        $pdf->Cell(50, 7, $texts[$language]['tracking_number'], 1, 0, 'L', true);
-        $pdf->Cell(80, 7, $texts[$language]['description'], 1, 0, 'L', true);
-        $pdf->Cell(25, 7, $texts[$language]['weight'], 1, 0, 'C', true);
-        $pdf->Cell(25, 7, $texts[$language]['amount'], 1, 1, 'R', true);
+        $pdf->Cell($trackingWidth, 7, $texts[$language]['tracking_number'], 1, 0, 'C', true);
+        $pdf->Cell($descWidth, 7, $texts[$language]['description'], 1, 0, 'C', true);
+        $pdf->Cell($originWidth, 7, $texts[$language]['origin'], 1, 0, 'C', true);
+        $pdf->Cell($destWidth, 7, $texts[$language]['destination'], 1, 0, 'C', true);
+        $pdf->Cell($weightWidth, 7, $texts[$language]['weight'], 1, 0, 'C', true);
+        $pdf->Cell($amountWidth, 7, $texts[$language]['amount'], 1, 1, 'C', true);
         
-        $pdf->SetFont('freeserif', '', 9);
+        $pdf->SetFont('freeserif', '', 8);
     }
     
-    $pdf->Cell(50, 6, $shipment['tracking_number'], 1, 0, 'L', $fill);
-    $pdf->Cell(80, 6, $texts[$language]['shipping_service'] . ' ' . ($shipment['transport_type'] ?? $texts[$language]['standard']), 1, 0, 'L', $fill);
-    $pdf->Cell(25, 6, number_format($shipment['weight'], 2), 1, 0, 'C', $fill);
-    $pdf->Cell(25, 6, number_format($shipment['total_price'], 2), 1, 1, 'R', $fill);
+    // ตรวจสอบและกำหนดค่าต้นทางและปลายทาง
+    $origin = !empty($shipment['origin']) ? $shipment['origin'] : 
+             (!empty($shipment['origin_address']) ? $shipment['origin_address'] : 'N/A');
+    
+    $destination = !empty($shipment['destination']) ? $shipment['destination'] : 
+                  (!empty($shipment['destination_address']) ? $shipment['destination_address'] : 'N/A');
+    
+    // ตัดข้อความให้พอดีกับความกว้างของคอลัมน์
+    $trackingNumber = $pdf->getStringHeight($trackingWidth, $shipment['tracking_number']) > 6 
+        ? substr($shipment['tracking_number'], 0, 15) . '...' 
+        : $shipment['tracking_number'];
+    
+    $description = $texts[$language]['shipping_service'] . ' ' . ($shipment['transport_type'] ?? $texts[$language]['standard']);
+    $description = $pdf->getStringHeight($descWidth, $description) > 6 
+        ? substr($description, 0, 20) . '...' 
+        : $description;
+    
+    $origin = $pdf->getStringHeight($originWidth, $origin) > 6 
+        ? substr($origin, 0, 15) . '...' 
+        : $origin;
+    
+    $destination = $pdf->getStringHeight($destWidth, $destination) > 6 
+        ? substr($destination, 0, 15) . '...' 
+        : $destination;
+    
+    $pdf->Cell($trackingWidth, 6, $trackingNumber, 1, 0, 'L', $fill);
+    $pdf->Cell($descWidth, 6, $description, 1, 0, 'L', $fill);
+    $pdf->Cell($originWidth, 6, $origin, 1, 0, 'L', $fill);
+    $pdf->Cell($destWidth, 6, $destination, 1, 0, 'L', $fill);
+    $pdf->Cell($weightWidth, 6, number_format($shipment['weight'], 2), 1, 0, 'R', $fill);
+    $pdf->Cell($amountWidth, 6, number_format($shipment['total_price'], 2), 1, 1, 'R', $fill);
     
     $fill = !$fill; // สลับสีพื้นหลัง
 }
 
-// ดึงข้อมูลค่าใช้จ่ายเพิ่มเติม
-require_once 'models/InvoiceCharge.php';
-$invoiceChargeModel = new InvoiceCharge();
-$additionalCharges = $invoiceChargeModel->getChargesByInvoiceId($id);
-
 // สรุปยอด
-$pdf->SetFont('freeserif', 'B', 9);
+$pdf->SetFont('freeserif', 'B', 8);
 
 // คำนวณ subtotal จากยอดรวมของ shipments
 $subtotal = 0;
@@ -372,8 +448,11 @@ if (isset($invoice['subtotal']) && $invoice['subtotal'] > 0) {
     $subtotal = $invoice['subtotal'];
 }
 
-$pdf->Cell(155, 6, $texts[$language]['subtotal'], 1, 0, 'R');
-$pdf->Cell(25, 6, number_format($subtotal, 2), 1, 1, 'R');
+// ความกว้างรวมของคอลัมน์ทั้งหมด
+$totalWidth = $trackingWidth + $descWidth + $originWidth + $destWidth + $weightWidth;
+
+$pdf->Cell($totalWidth, 6, $texts[$language]['subtotal'], 1, 0, 'R');
+$pdf->Cell($amountWidth, 6, number_format($subtotal, 2), 1, 1, 'R');
 
 // แสดงค่าใช้จ่ายเพิ่มเติม
 if (!empty($additionalCharges)) {
@@ -388,43 +467,33 @@ if (!empty($additionalCharges)) {
         }
         
         if ($charge['charge_type'] == 'discount') {
-            $pdf->Cell(155, 6, $chargeDescription, 1, 0, 'R');
-            $pdf->Cell(25, 6, '-' . number_format(abs($chargeAmount), 2), 1, 1, 'R');
+            $pdf->Cell($totalWidth, 6, $chargeDescription, 1, 0, 'R');
+            $pdf->Cell($amountWidth, 6, '-' . number_format(abs($chargeAmount), 2), 1, 1, 'R');
         } else {
-            $pdf->Cell(155, 6, $chargeDescription, 1, 0, 'R');
-            $pdf->Cell(25, 6, number_format($chargeAmount, 2), 1, 1, 'R');
+            $pdf->Cell($totalWidth, 6, $chargeDescription, 1, 0, 'R');
+            $pdf->Cell($amountWidth, 6, number_format($chargeAmount, 2), 1, 1, 'R');
         }
     }
 }
 
 // แสดงภาษี
 // ใช้ข้อมูลจากฐานข้อมูลถ้ามี
-if (isset($invoice['tax_rate'])) {
+if (isset($invoice['tax_rate']) && $invoice['tax_rate'] > 0) {
     // ใช้ข้อมูลจากฐานข้อมูล
     $taxRate = $invoice['tax_rate'];
     
-    // แสดงภาษีเฉพาะเมื่อ tax_rate > 0
-    if ($taxRate > 0) {
-        $taxAmount = isset($invoice['tax_amount']) && $invoice['tax_amount'] > 0 
-            ? $invoice['tax_amount'] 
-            : $subtotal * $taxRate;
-        
-        $taxDescription = $texts[$language]['vat'] . ' (' . number_format($taxRate * 100, 0) . '%)';
-        $pdf->Cell(155, 6, $taxDescription, 1, 0, 'R');
-        $pdf->Cell(25, 6, number_format($taxAmount, 2), 1, 1, 'R');
-    }
-} else {
-    // ถ้าไม่มีข้อมูล tax_rate ในฐานข้อมูล ให้ใช้ค่าเริ่มต้น 7% (กรณีเก่า)
-    $taxRate = 0.07;
-    $taxAmount = $subtotal * $taxRate;
-    $taxDescription = $texts[$language]['vat'] . ' (7%)';
-    $pdf->Cell(155, 6, $taxDescription, 1, 0, 'R');
-    $pdf->Cell(25, 6, number_format($taxAmount, 2), 1, 1, 'R');
+    $taxAmount = isset($invoice['tax_amount']) && $invoice['tax_amount'] > 0 
+        ? $invoice['tax_amount'] 
+        : $subtotal * $taxRate;
+    
+    $taxDescription = $texts[$language]['vat'] . ' (' . number_format($taxRate * 100, 0) . '%)';
+    $pdf->Cell($totalWidth, 6, $taxDescription, 1, 0, 'R');
+    $pdf->Cell($amountWidth, 6, number_format($taxAmount, 2), 1, 1, 'R');
 }
 
 $pdf->SetFillColor(255, 243, 224); // สีส้มอ่อน
-$pdf->Cell(155, 6, $texts[$language]['total'], 1, 0, 'R', true);
-$pdf->Cell(25, 6, number_format($invoice['total_amount'], 2), 1, 1, 'R', true);
+$pdf->Cell($totalWidth, 6, $texts[$language]['total'], 1, 0, 'R', true);
+$pdf->Cell($amountWidth, 6, number_format($invoice['total_amount'], 2), 1, 1, 'R', true);
 
 // หมายเหตุ
 if (!empty($invoice['notes'])) {

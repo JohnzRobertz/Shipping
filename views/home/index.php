@@ -1,105 +1,75 @@
 <?php
-// ตรวจสอบว่ามีการเชื่อมต่อกับฐานข้อมูลหรือไม่
-$dbConnected = isset($db) && $db instanceof PDO;
-
-// ตรวจสอบว่ามีการโหลดโมเดลหรือไม่
-$shipmentModelLoaded = isset($shipmentModel) && is_object($shipmentModel);
-$lotModelLoaded = isset($lotModel) && is_object($lotModel);
-
-// ดึงข้อมูลสถิติถ้ามีการเชื่อมต่อกับฐานข้อมูลและโหลดโมเดลแล้ว
-$totalShipments = 0;
-$pendingShipments = 0;
-$processingShipments = 0;
-$totalLots = 0;
-$recentShipments = [];
-
-if ($dbConnected) {
-    if ($shipmentModelLoaded) {
-        $totalShipments = $shipmentModel->countAll();
-        $pendingShipments = $shipmentModel->countByStatus('pending');
-        $processingShipments = $shipmentModel->countByStatus('processing');
-        $recentShipments = $shipmentModel->getRecent(10);
-    }
-    
-    if ($lotModelLoaded) {
-        $totalLots = $lotModel->countAll();
-    }
-}
-
 // ตรวจสอบว่าผู้ใช้ล็อกอินหรือไม่
 $isLoggedIn = isset($_SESSION['user_id']);
 
 // ตรวจสอบว่าผู้ใช้เป็นผู้ดูแลระบบหรือไม่
 $isAdmin = isset($_SESSION['user_role']) && $_SESSION['user_role'] === 'admin';
-
-// ตรวจสอบภาษาปัจจุบัน
-$currentLang = isset($_SESSION['language']) ? $_SESSION['language'] : 'th';
 ?>
 
 <div class="container mt-4">
 
     <?php if (!isLoggedIn()): ?>
-                    <!-- ส่วนสำหรับผู้ใช้ที่ยังไม่ได้เข้าสู่ระบบ - แสดงเฉพาะส่วนติดตามพัสดุ -->
-                    <div class="row justify-content-center">
-                        <div class="col-md-8 text-center mb-5">
-                            <h1 class="display-4 mb-3"><?php echo __('welcome_to_shipping_system'); ?></h1>
-                            <p class="lead"><?php echo __('track_your_shipment_below'); ?></p>
-                        </div>
+        <!-- ส่วนสำหรับผู้ใช้ที่ยังไม่ได้เข้าสู่ระบบ - แสดงเฉพาะส่วนติดตามพัสดุ -->
+        <div class="row justify-content-center">
+            <div class="col-md-8 text-center mb-5">
+                <h1 class="display-4 mb-3"><?php echo __('welcome_to_shipping_system'); ?></h1>
+                <p class="lead"><?php echo __('track_your_shipment_below'); ?></p>
+            </div>
+        </div>
+        
+        <div class="row justify-content-center">
+            <div class="col-md-6">
+                <div class="card shadow-sm">
+                    <div class="card-body p-4">
+                        <h2 class="card-title text-center mb-4">
+                            <i class="bi bi-search me-2"></i> <?php echo __('track_shipment'); ?>
+                        </h2>
+                        
+                        <form action="index.php" method="get" class="mb-3">
+                            <input type="hidden" name="page" value="tracking">
+                            <div class="input-group mb-3">
+                                <input type="text" name="tracking_number" class="form-control form-control-lg" 
+                                    placeholder="<?php echo __('enter_tracking_number'); ?>" required>
+                                <button type="submit" class="btn btn-primary btn-lg">
+                                    <i class="bi bi-search me-2"></i> <?php echo __('track'); ?>
+                                </button>
+                            </div>
+                        </form>
+                        
                     </div>
-                    
-                    <div class="row justify-content-center">
-                        <div class="col-md-6">
-                            <div class="card shadow-sm">
-                                <div class="card-body p-4">
-                                    <h2 class="card-title text-center mb-4">
-                                        <i class="bi bi-search me-2"></i> <?php echo __('track_shipment'); ?>
-                                    </h2>
-                                    
-                                    <form action="index.php" method="get" class="mb-3">
-                                        <input type="hidden" name="page" value="tracking">
-                                        <div class="input-group mb-3">
-                                            <input type="text" name="tracking_number" class="form-control form-control-lg" 
-                                                placeholder="<?php echo __('enter_tracking_number'); ?>" required>
-                                            <button type="submit" class="btn btn-primary btn-lg">
-                                                <i class="bi bi-search me-2"></i> <?php echo __('track'); ?>
-                                            </button>
-                                        </div>
-                                    </form>
-                                    
+                </div>
+                
+                <!-- ข้อมูลเพิ่มเติมเกี่ยวกับบริการ -->
+                <div class="card shadow-sm mt-4">
+                    <div class="card-body p-4">
+                        <h3 class="card-title mb-3"><?php echo __('our_services'); ?></h3>
+                        <div class="row g-4">
+                            <div class="col-md-4 text-center">
+                                <div class="p-3">
+                                    <i class="bi bi-airplane fs-1 text-primary mb-3"></i>
+                                    <h5><?php echo __('air_shipping'); ?></h5>
+                                    <p class="small text-muted"><?php echo __('fast_reliable_air_shipping'); ?></p>
                                 </div>
                             </div>
-                            
-                            <!-- ข้อมูลเพิ่มเติมเกี่ยวกับบริการ -->
-                            <div class="card shadow-sm mt-4">
-                                <div class="card-body p-4">
-                                    <h3 class="card-title mb-3"><?php echo __('our_services'); ?></h3>
-                                    <div class="row g-4">
-                                        <div class="col-md-4 text-center">
-                                            <div class="p-3">
-                                                <i class="bi bi-airplane fs-1 text-primary mb-3"></i>
-                                                <h5><?php echo __('air_shipping'); ?></h5>
-                                                <p class="small text-muted"><?php echo __('fast_reliable_air_shipping'); ?></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center">
-                                            <div class="p-3">
-                                                <i class="bi bi-water fs-1 text-primary mb-3"></i>
-                                                <h5><?php echo __('sea_shipping'); ?></h5>
-                                                <p class="small text-muted"><?php echo __('cost_effective_sea_shipping'); ?></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center">
-                                            <div class="p-3">
-                                                <i class="bi bi-truck fs-1 text-primary mb-3"></i>
-                                                <h5><?php echo __('land_shipping'); ?></h5>
-                                                <p class="small text-muted"><?php echo __('reliable_land_shipping'); ?></p>
-                                            </div>
-                                        </div>
-                                    </div>
+                            <div class="col-md-4 text-center">
+                                <div class="p-3">
+                                    <i class="bi bi-water fs-1 text-primary mb-3"></i>
+                                    <h5><?php echo __('sea_shipping'); ?></h5>
+                                    <p class="small text-muted"><?php echo __('cost_effective_sea_shipping'); ?></p>
+                                </div>
+                            </div>
+                            <div class="col-md-4 text-center">
+                                <div class="p-3">
+                                    <i class="bi bi-truck fs-1 text-primary mb-3"></i>
+                                    <h5><?php echo __('land_shipping'); ?></h5>
+                                    <p class="small text-muted"><?php echo __('reliable_land_shipping'); ?></p>
                                 </div>
                             </div>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
     <?php else: ?>
         <!-- แสดงเนื้อหาสำหรับผู้ใช้ที่ล็อกอินแล้ว -->
         <div class="row mb-4">
@@ -242,35 +212,6 @@ $currentLang = isset($_SESSION['language']) ? $_SESSION['language'] : 'th';
                 </div>
             </div>
         </div>
-    <?php endif; ?>
-
-    <?php if ($isAdmin): ?>
-        <!-- แสดงข้อมูลดีบักสำหรับผู้ดูแลระบบ -->
-        <!-- <div class="row mt-5">
-            <div class="col-md-12">
-                <div class="card bg-light">
-                    <div class="card-header">
-                        <h5 class="mb-0">Debug Information</h5>
-                    </div>
-                    <div class="card-body">
-                        <h6>Database Connection:</h6>
-                        <p><?php echo $dbConnected ? 'Connected' : 'Not connected'; ?></p>
-                        
-                        <h6>Models Loaded:</h6>
-                        <ul>
-                            <li>Shipment Model: <?php echo $shipmentModelLoaded ? 'Loaded' : 'Not loaded'; ?></li>
-                            <li>Lot Model: <?php echo $lotModelLoaded ? 'Loaded' : 'Not loaded'; ?></li>
-                        </ul>
-                        
-                        <h6>Language:</h6>
-                        <p>Current Language: <?php echo $currentLang; ?></p>
-                        
-                        <h6>Session Data:</h6>
-                        <pre><?php print_r($_SESSION); ?></pre>
-                    </div>
-                </div>
-            </div>
-        </div> -->
     <?php endif; ?>
 </div>
 

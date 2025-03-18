@@ -238,19 +238,15 @@
                                 </td>
                                 <td class="text-end pe-3">
                                     <div class="btn-group">
-                                        <a href="index.php?page=lots&action=view&id=<?php echo $lot['id']; ?>" 
+                                        <a href="index.php?page=lots&action=view&id=<?php echo urlencode($lot['id']); ?>" 
                                            class="btn btn-sm btn-info" data-bs-toggle="tooltip" title="<?php echo __('view'); ?>">
                                             <i class="bi bi-eye"></i>
                                         </a>
-                                        <a href="index.php?page=lots&action=edit&id=<?php echo $lot['id']; ?>" 
+                                        <a href="index.php?page=lots&action=edit&id=<?php echo urlencode($lot['id']); ?>" 
                                            class="btn btn-sm btn-warning" data-bs-toggle="tooltip" title="<?php echo __('edit'); ?>">
                                             <i class="bi bi-pencil"></i>
                                         </a>
-                                        <button type="button" class="btn btn-sm btn-danger delete-lot-btn" 
-                                                data-bs-toggle="modal" data-bs-target="#deleteLotModal"
-                                                data-id="<?php echo $lot['id']; ?>"
-                                                data-lot-number="<?php echo htmlspecialchars($lot['lot_number']); ?>"
-                                                title="<?php echo __('delete'); ?>">
+                                        <button onclick="confirmDelete('<?php echo $lot['id']; ?>')" class="btn btn-sm btn-danger" title="<?php echo __('delete'); ?>">
                                             <i class="bi bi-trash"></i>
                                         </button>
                                     </div>
@@ -371,6 +367,12 @@
 </div>
 
 <script>
+function confirmDelete(id) {
+    if (confirm('<?php echo __('confirm_delete_lot'); ?>')) {
+        window.location.href = 'index.php?page=lots&action=delete&id=' + encodeURIComponent(id);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
     const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));

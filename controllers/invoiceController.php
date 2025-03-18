@@ -4,6 +4,7 @@ require_once 'models/Customer.php';
 require_once 'models/Shipment.php';
 require_once 'models/InvoiceCharge.php';
 require_once 'debug.php';
+require_once 'lib/UlidGenerator.php';
 
 class InvoiceController {
     private $invoiceModel;
@@ -22,6 +23,17 @@ class InvoiceController {
             header('Location: index.php?page=login');
             exit();
         }
+    }
+
+    private function isValidUlid($id) {
+        // ปรับปรุงการตรวจสอบ ULID
+        // ตรวจสอบเฉพาะว่าเป็นสตริงที่มีความยาว 26 ตัวอักษร
+        if (!is_string($id) || strlen($id) != 26) {
+            return false;
+        }
+        
+        // ตรวจสอบรูปแบบพื้นฐาน - สามารถขยายเพิ่มเติมได้ถ้าต้องการ
+        return preg_match('/^[0-9A-Z]{26}$/i', $id) === 1;
     }
     
     // แก้ไขเมธอด index() เพื่อรองรับการเปลี่ยนแปลงขนาดหน้า (page size)
@@ -277,45 +289,74 @@ class InvoiceController {
                 if ($invoiceID) {
                     // Link shipments to invoice
                     foreach ($shipmentIDs as $shipmentID) {
-                        $this->invoiceModel->linkShipmentToInvoice($invoiceID, $shipmentID);
-                    }
+                        // Debug: แสดงข้อมูล shipment ที่กำลังเพิ่ม
+                        debug_log("Shipment ID: " . $shipmentID);
+                        $shipment = $this->shipmentModel->getById($shipmentID);
+                        debug_log("Shipment data: " . print_r($shipment, true));
                     
-                    // Add additional charges if any
-                    if (isset($_POST['additional_charges']) && !empty($_POST['additional_charges'])) {
-                        foreach ($_POST['additional_charges'] as $charge) {
-                            $chargeData = [
-                                'invoice_id' => $invoiceID,
-                                'charge_type' => $charge['type'],
-                                'description' => $charge['description'],
-                                'amount' => $charge['amount'],
-                                'is_percentage' => isset($charge['is_percentage']) ? $charge['is_percentage'] : 0
-                            ];
-                            $this->invoiceChargeModel->addCharge($chargeData);
+                        $this->invoiceModel->linkShipmentToInvoice($invoiceID, $shipmentID);
+                    
+                        // อัพเดทสถานะการชำระเงินของ shipment
+                        global $db;
+                        $checkSql = "SHOW COLUMNS FROM shipments LIKE 'payment_status'";
+                        $checkStmt = $db->prepare($checkSql);
+                        $checkStmt->execute();
+                        if ($checkStmt->rowCount() > 0) {
+                            $sql = "UPDATE shipments SET payment_status = 'invoiced' WHERE id = :id";
+                            $stmt = $db->prepare($sql);
+                            $stmt->bindParam(':id', $shipmentID);
+                            $stmt->execute();
                         }
                     }
-                    
-                    $_SESSION['success'] = __('invoice_created_successfully');
-                    // Redirect to invoice view
-                    header('Location: index.php?page=invoice&action=view&id=' . $invoiceID);
-                    exit();
-                } else {
-                    $_SESSION['error'] = __('failed_to_create_invoice');
+                
+                // Add additional charges if any
+                if (isset($_POST['additional_charges']) && !empty($_POST['additional_charges'])) {
+                    foreach ($_POST['additional_charges'] as $charge) {
+                        $chargeData = [
+                            'invoice_id' => $invoiceID,
+                            'charge_type' => $charge['type'],
+                            'description' => $charge['description'],
+                            'amount' => $charge['amount'],
+                            'is_percentage' => isset($charge['is_percentage']) ? $charge['is_percentage'] : 0
+                        ];
+                        $chargeId = $this->invoiceChargeModel->addCharge($chargeData);
+                        if ($chargeId) {
+                            debug_log("Added charge with ID: " . $chargeId);
+                        } else {
+                            debug_log("Failed to add charge");
+                        }
+                    }
                 }
-            } catch (Exception $e) {
-                $_SESSION['error'] = __('error_occurred') . ': ' . $e->getMessage();
+                
+                $_SESSION['success'] = __('invoice_created_successfully');
+                // Redirect to invoice view
+                header('Location: index.php?page=invoice&action=view&id=' . $invoiceID);
+                exit();
+            } else {
+                $_SESSION['error'] = __('failed_to_create_invoice');
             }
-        } else {
-            // Store errors in session
-            $_SESSION['error'] = implode('<br>', $errors);
+        } catch (Exception $e) {
+            $_SESSION['error'] = __('error_occurred') . ': ' . $e->getMessage();
         }
-        
-        // If we get here, there were errors - redirect back to create form
-        header('Location: index.php?page=invoice&action=create');
-        exit();
+    } else {
+        // Store errors in session
+        $_SESSION['error'] = implode('<br>', $errors);
     }
     
+    // If we get here, there were errors - redirect back to create form
+    header('Location: index.php?page=invoice&action=create');
+    exit();
+}
+    
     public function view() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $id = isset($_GET['id']) ? $_GET['id'] : 0;
+
+        if (!$this->isValidUlid($id)) {
+            $_SESSION['error'] = __('invalid_invoice_id');
+            header('Location: index.php?page=invoice');
+            exit();
+        }
+
         $invoice = $this->invoiceModel->getInvoiceById($id);
         
         if (!$invoice) {
@@ -325,33 +366,25 @@ class InvoiceController {
         }
         
         $customer = $this->customerModel->getCustomerById($invoice['customer_id']);
-        $shipments = $this->invoiceModel->getShipmentsByInvoiceId($id);
+        
+        // ใช้เมธอด getShipmentsWithLotInfo() แทน
+        $shipments = $this->getShipmentsWithLotInfo($id);
         
         // ดึงข้อมูลค่าใช้จ่ายเพิ่มเติม
         $additionalCharges = $this->invoiceChargeModel->getChargesByInvoiceId($id);
-        
-        // เพิ่มข้อมูล origin และ destination จาก lot
-        foreach ($shipments as &$shipment) {
-            if (isset($shipment['lot_id']) && !empty($shipment['lot_id'])) {
-                $lot = $this->getLotById($shipment['lot_id']);
-                if ($lot) {
-                    $shipment['origin'] = $lot['origin'] ?? 'N/A';
-                    $shipment['destination'] = $lot['destination'] ?? 'N/A';
-                } else {
-                    $shipment['origin'] = 'N/A';
-                    $shipment['destination'] = 'N/A';
-                }
-            } else {
-                $shipment['origin'] = 'N/A';
-                $shipment['destination'] = 'N/A';
-            }
-        }
         
         include 'views/invoice/view.php';
     }
     
     public function edit() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $id = isset($_GET['id']) ? $_GET['id'] : 0;
+
+        if (!$this->isValidUlid($id)) {
+            $_SESSION['error'] = __('invalid_invoice_id');
+            header('Location: index.php?page=invoice');
+            exit();
+        }
+        
         $invoice = $this->invoiceModel->getInvoiceById($id);
         
         if (!$invoice) {
@@ -371,6 +404,10 @@ class InvoiceController {
         
         // ดึงข้อมูล shipments ที่อยู่ในใบแจ้งหนี้
         $invoiceShipments = $this->invoiceModel->getShipmentsByInvoiceId($id);
+        
+        // Debug: แสดงข้อมูล shipments ที่ดึงมา
+        error_log("Invoice shipments for invoice $id: " . print_r($invoiceShipments, true));
+        
         $shipmentIds = array_column($invoiceShipments, 'id');
         
         // ดึงข้อมูล shipments ที่ยังไม่ได้ออกใบแจ้งหนี้
@@ -415,125 +452,186 @@ class InvoiceController {
         include 'views/invoice/edit.php';
     }
     
+    // แก้ไขฟังก์ชัน update() ในไฟล์ controllers/InvoiceController.php
+    // เพิ่ม debug log เพื่อตรวจสอบข้อมูลที่ส่งไป
+
     public function update() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: index.php?page=invoice');
-            exit();
-        }
-        
-        $id = isset($_POST['id']) ? (int)$_POST['id'] : 0;
-        $invoice = $this->invoiceModel->getInvoiceById($id);
-        
-        if (!$invoice) {
-            $_SESSION['error'] = __('invoice_not_found');
-            header('Location: index.php?page=invoice');
-            exit();
-        }
-        
-        // ตรวจสอบว่าใบแจ้งหนี้ยังไม่ได้ชำระเงิน
-        if ($invoice['status'] === 'paid') {
-            $_SESSION['error'] = __('cannot_edit_paid_invoice');
-            header('Location: index.php?page=invoice&action=view&id=' . $id);
-            exit();
-        }
-        
-        $customer_id = isset($_POST['customer_id']) ? (int)$_POST['customer_id'] : 0;
-        $invoice_date = isset($_POST['invoice_date']) ? $_POST['invoice_date'] : date('Y-m-d');
-        $due_date = isset($_POST['due_date']) ? $_POST['due_date'] : date('Y-m-d', strtotime('+30 days'));
-        $notes = isset($_POST['notes']) ? $_POST['notes'] : '';
-        $shipment_ids = isset($_POST['shipment_ids']) ? $_POST['shipment_ids'] : [];
-        
-        // ตรวจสอบข้อมูลที่จำเป็น
-        if (empty($customer_id) || empty($shipment_ids)) {
-            $_SESSION['error'] = __('please_fill_all_required_fields');
-            header('Location: index.php?page=invoice&action=edit&id=' . $id);
-            exit();
-        }
-        
-        // คำนวณยอดรวม
-        $total_amount = 0;
-        foreach ($shipment_ids as $shipment_id) {
-            // แก้ไขบรรทัด 456 ที่มีการเรียกใช้เมธอด getShipmentById() ที่ไม่มี
-            // เปลี่ยนจาก:
-            // $shipment = Shipment::getShipmentById($shipment_id);
+    if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+        header('Location: index.php?page=invoice');
+        exit();
+    }
+    
+    $id = isset($_POST['id']) ? $_POST['id'] : '';
+    
+    // Debug: แสดงข้อมูลที่ได้รับจากฟอร์ม
+    error_log("Update invoice - POST data: " . print_r($_POST, true));
 
-            // เป็น:
-            $shipment = $this->shipmentModel->getById($shipment_id);
-            if ($shipment) {
-                $total_amount += $shipment['total_price'];
-            }
-        }
-        
-        // ข้อมูลค่าใช้จ่ายเพิ่มเติม
-        $charges = isset($_POST['charges']) ? $_POST['charges'] : [];
-        $subtotal = $total_amount;
-        
-        // คำนวณยอดรวมหลังจากเพิ่มค่าใช้จ่ายเพิ่มเติม
-        foreach ($charges as $charge) {
-            if (!empty($charge['description']) && isset($charge['amount'])) {
-                $amount = (float)$charge['amount'];
-                $is_percentage = isset($charge['is_percentage']) ? 1 : 0;
-                $charge_type = $charge['charge_type'] ?? 'fee';
-                
-                if ($is_percentage) {
-                    $charge_amount = $subtotal * ($amount / 100);
-                } else {
-                    $charge_amount = $amount;
-                }
-                
-                if ($charge_type === 'discount') {
-                    $total_amount -= $charge_amount;
-                } else {
-                    $total_amount += $charge_amount;
-                }
-            }
-        }
-        
-        // อัพเดทข้อมูลใบแจ้งหนี้
-        $data = [
-            'id' => $id,
-            'customer_id' => $customer_id,
-            'invoice_date' => $invoice_date,
-            'due_date' => $due_date,
-            'total_amount' => $total_amount,
-            'subtotal' => $subtotal,
-            'notes' => $notes
-        ];
-
-        $result = $this->invoiceModel->updateInvoice($data, $shipment_ids);
-
-        if ($result) {
-            // อัพเดทข้อมูลค่าใช้จ่ายเพิ่มเติม
-            $this->invoiceChargeModel->deleteAllChargesByInvoiceId($id);
-            
-            foreach ($charges as $charge) {
-                if (!empty($charge['description']) && isset($charge['amount'])) {
-                    $charge_data = [
-                        'invoice_id' => $id,
-                        'description' => $charge['description'],
-                        'amount' => (float)$charge['amount'],
-                        'is_percentage' => isset($charge['is_percentage']) ? 1 : 0,
-                        'charge_type' => $charge['charge_type'] ?? 'fee'
-                    ];
-                    
-                    $this->invoiceChargeModel->addCharge($charge_data);
-                }
-            }
-            
-            $_SESSION['success'] = __('invoice_updated_successfully');
-            header('Location: index.php?page=invoice&action=view&id=' . $id);
-            exit();
-        } else {
-            $_SESSION['error'] = __('error_updating_invoice');
-            header('Location: index.php?page=invoice&action=edit&id=' . $id);
-            exit();
+    if (!$this->isValidUlid($id)) {
+        $_SESSION['error'] = __('invalid_invoice_id');
+        header('Location: index.php?page=invoice');
+        exit();
+    }
+    
+    $invoice = $this->invoiceModel->getInvoiceById($id);
+    
+    if (!$invoice) {
+        $_SESSION['error'] = __('invoice_not_found');
+        header('Location: index.php?page=invoice');
+        exit();
+    }
+    
+    // ตรวจสอบว่าใบแจ้งหนี้ยังไม่ได้ชำระเงิน
+    if ($invoice['status'] === 'paid') {
+        $_SESSION['error'] = __('cannot_edit_paid_invoice');
+        header('Location: index.php?page=invoice&action=view&id=' . $id);
+        exit();
+    }
+    
+    $customer_id = isset($_POST['customer_id']) ? $_POST['customer_id'] : '';
+    $invoice_date = isset($_POST['invoice_date']) ? $_POST['invoice_date'] : date('Y-m-d');
+    $due_date = isset($_POST['due_date']) ? $_POST['due_date'] : date('Y-m-d', strtotime('+30 days'));
+    $notes = isset($_POST['notes']) ? $_POST['notes'] : '';
+    $shipment_ids = isset($_POST['shipment_ids']) ? $_POST['shipment_ids'] : [];
+    
+    // Debug: แสดงข้อมูล shipment_ids
+    error_log("Shipment IDs: " . print_r($shipment_ids, true));
+    
+    // ตรวจสอบข้อมูลที่จำเป็น
+    if (empty($customer_id) || empty($shipment_ids)) {
+        $_SESSION['error'] = __('please_fill_all_required_fields');
+        header('Location: index.php?page=invoice&action=edit&id=' . $id);
+        exit();
+    }
+    
+    // คำนวณยอดรวม
+    $total_amount = 0;
+    foreach ($shipment_ids as $shipment_id) {
+        $shipment = $this->shipmentModel->getById($shipment_id);
+        if ($shipment) {
+            $total_amount += $shipment['total_price'];
         }
     }
     
+    // ข้อมูลค่าใช้จ่ายเพิ่มเติม
+    $charges = isset($_POST['charges']) ? $_POST['charges'] : [];
+    $subtotal = $total_amount;
+    
+    // คำนวณยอดรวมหลังจากเพิ่มค่าใช้จ่ายเพิ่มเติม
+    foreach ($charges as $charge) {
+        if (!empty($charge['description']) && isset($charge['amount'])) {
+            $amount = (float)$charge['amount'];
+            $is_percentage = isset($charge['is_percentage']) ? 1 : 0;
+            $charge_type = $charge['charge_type'] ?? 'fee';
+    
+            if ($is_percentage) {
+                $charge_amount = $subtotal * ($amount / 100);
+            } else {
+                $charge_amount = $amount;
+            }
+    
+            if ($charge_type === 'discount') {
+                $total_amount -= $charge_amount;
+            } else {
+                $total_amount += $charge_amount;
+            }
+        }
+    }
+    
+    // อัพเดทข้อมูลใบแจ้งหนี้
+    $data = [
+        'id' => $id,
+        'customer_id' => $customer_id,
+        'invoice_date' => $invoice_date,
+        'due_date' => $due_date,
+        'total_amount' => $total_amount,
+        'subtotal' => $subtotal,
+        'notes' => $notes
+    ];
+    
+    // Debug: แสดงข้อมูลที่จะอัพเดท
+    error_log("Update invoice data: " . print_r($data, true));
+
+    // ลบข้อมูล shipments เก่าออกก่อน
+    $this->invoiceModel->removeAllShipmentsFromInvoice($id);
+    
+    // รีเซ็ตสถานะการชำระเงินของ shipments ที่เคยอยู่ในใบแจ้งหนี้นี้
+    global $db;
+    $sql = "UPDATE shipments SET payment_status = 'unpaid' WHERE id IN (SELECT shipment_id FROM invoice_shipments WHERE invoice_id = :invoice_id)";
+    $stmt = $db->prepare($sql);
+    $stmt->bindParam(':invoice_id', $id);
+    $stmt->execute();
+    
+    $result = $this->invoiceModel->updateInvoice($data);
+    
+    // Debug: แสดงผลลัพธ์การอัพเดท
+    error_log("Update invoice result: " . ($result ? "success" : "failed"));
+
+    if ($result) {
+        // บันทึกข้อมูล shipments ใหม่
+        if (!empty($shipment_ids)) {
+            foreach ($shipment_ids as $shipment_id) {
+                $this->invoiceModel->linkShipmentToInvoice($id, $shipment_id);
+                
+                // อัพเดทสถานะการชำระเงินของ shipment
+                $checkSql = "SHOW COLUMNS FROM shipments LIKE 'payment_status'";
+                $checkStmt = $db->prepare($checkSql);
+                $checkStmt->execute();
+                if ($checkStmt->rowCount() > 0) {
+                    $sql = "UPDATE shipments SET payment_status = 'invoiced' WHERE id = :id";
+                    $stmt = $db->prepare($sql);
+                    $stmt->bindParam(':id', $shipment_id);
+                    $stmt->execute();
+                }
+            }
+        }
+        
+        // อัพเดทข้อมูลค่าใช้จ่ายเพิ่มเติม
+        $this->invoiceChargeModel->deleteAllChargesByInvoiceId($id);
+    
+        foreach ($charges as $charge) {
+            if (!empty($charge['description']) && isset($charge['amount'])) {
+                $charge_data = [
+                    'invoice_id' => $id,
+                    'description' => $charge['description'],
+                    'amount' => (float)$charge['amount'],
+                    'is_percentage' => isset($charge['is_percentage']) ? 1 : 0,
+                    'charge_type' => $charge['charge_type'] ?? 'fee'
+                ];
+            
+                $chargeId = $this->invoiceChargeModel->addCharge($charge_data);
+                if ($chargeId) {
+                    debug_log("Added charge with ID: " . $chargeId);
+                } else {
+                    debug_log("Failed to add charge");
+                }
+            }
+        }
+    
+        $_SESSION['success'] = __('invoice_updated_successfully');
+        header('Location: index.php?page=invoice&action=view&id=' . $id);
+        exit();
+    } else {
+        $_SESSION['error'] = __('error_updating_invoice');
+        header('Location: index.php?page=invoice&action=edit&id=' . $id);
+        exit();
+    }
+}
+    
     public function delete() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        // แก้ไขการรับค่า ID ให้รองรับทั้ง GET และ POST
+        $id = isset($_GET['id']) ? $_GET['id'] : '';
         if (isset($_POST['id'])) {
-            $id = (int)$_POST['id'];
+            $id = $_POST['id'];
+        }
+        
+        // Debug: แสดงข้อมูล ID ที่ได้รับ
+        error_log("Delete invoice - ID: " . $id);
+        
+        // ตรวจสอบความถูกต้องของ ID
+        if (!$this->isValidUlid($id)) {
+            $_SESSION['error'] = __('invalid_invoice_id');
+            header('Location: index.php?page=invoice');
+            exit();
         }
         
         $invoice = $this->invoiceModel->getInvoiceById($id);
@@ -544,18 +642,16 @@ class InvoiceController {
             exit();
         }
         
-        // Remove the restriction for paid invoices
-        // Now all invoices can be deleted regardless of status
-        
+        // ตรวจสอบว่าเป็นการส่งฟอร์มยืนยันการลบหรือไม่
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST['confirm'] === 'yes') {
             try {
-                // Delete additional charges
+                // ลบข้อมูลค่าใช้จ่ายเพิ่มเติมก่อน
                 $this->invoiceChargeModel->deleteAllChargesByInvoiceId($id);
                 
-                // Get shipments linked to this invoice
-                $shipments = $this->invoiceModel->getShipmentsByInvoiceId($id);
+                // ลบความเชื่อมโยงกับ shipments
+                $this->invoiceModel->removeAllShipmentsFromInvoice($id);
                 
-                // Delete invoice
+                // ลบใบแจ้งหนี้
                 $result = $this->invoiceModel->deleteInvoice($id);
                 
                 if ($result) {
@@ -574,11 +670,7 @@ class InvoiceController {
             }
         }
         
-        // Add a warning message for paid invoices
-        if ($invoice['status'] === 'paid') {
-            $_SESSION['warning'] = __('warning_deleting_paid_invoice');
-        }
-        
+        // แสดงหน้ายืนยันการลบ
         $customer = $this->customerModel->getCustomerById($invoice['customer_id']);
         $shipments = $this->invoiceModel->getShipmentsByInvoiceId($id);
         
@@ -603,7 +695,20 @@ class InvoiceController {
     }
     
     public function print() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        // รับค่า ID จาก URL
+        $id = isset($_GET['id']) ? $_GET['id'] : '';
+        
+        // Debug: แสดงข้อมูล ID ที่ได้รับ
+        error_log("Print invoice - ID: " . $id);
+        
+        // ตรวจสอบความถูกต้องของ ID
+        if (!$this->isValidUlid($id)) {
+            $_SESSION['error'] = __('invalid_invoice_id');
+            header('Location: index.php?page=invoice');
+            exit();
+        }
+        
+        // ดึงข้อมูลใบแจ้งหนี้
         $invoice = $this->invoiceModel->getInvoiceById($id);
         
         if (!$invoice) {
@@ -612,36 +717,46 @@ class InvoiceController {
             exit();
         }
         
+        // ดึงข้อมูลลูกค้า
         $customer = $this->customerModel->getCustomerById($invoice['customer_id']);
-        $shipments = $this->invoiceModel->getShipmentsByInvoiceId($id);
+        
+        // ดึงข้อมูล shipments พร้อมข้อมูล lot
+        $shipments = $this->getShipmentsWithLotInfo($id);
         
         // ดึงข้อมูลค่าใช้จ่ายเพิ่มเติม
         $additionalCharges = $this->invoiceChargeModel->getChargesByInvoiceId($id);
         
-        // เพิ่มข้อมูล origin และ destination จาก lot
-        foreach ($shipments as &$shipment) {
-            if (isset($shipment['lot_id']) && !empty($shipment['lot_id'])) {
-                $lot = $this->getLotById($shipment['lot_id']);
-                if ($lot) {
-                    $shipment['origin'] = $lot['origin'] ?? 'N/A';
-                    $shipment['destination'] = $lot['destination'] ?? 'N/A';
-                } else {
-                    $shipment['origin'] = 'N/A';
-                    $shipment['destination'] = 'N/A';
-                }
-            } else {
-                $shipment['origin'] = 'N/A';
-                $shipment['destination'] = 'N/A';
-            }
-        }
-        
+        // แสดงหน้าพิมพ์
         include 'views/invoice/print.php';
+    }
+
+    // เพิ่มเมธอดใหม่เพื่อดึงข้อมูล shipments พร้อมข้อมูล lot
+    private function getShipmentsWithLotInfo($invoiceId) {
+        global $db;
+        
+        // ดึงข้อมูล shipments พร้อมข้อมูล lot
+        $sql = "SELECT s.*, l.origin, l.destination, l.lot_number, l.lot_type 
+                FROM shipments s 
+                LEFT JOIN invoice_shipments is_rel ON s.id = is_rel.shipment_id 
+                LEFT JOIN lots l ON s.lot_id = l.id 
+                WHERE is_rel.invoice_id = :invoice_id";
+        
+        $stmt = $db->prepare($sql);
+        $stmt->bindParam(':invoice_id', $invoiceId);
+        $stmt->execute();
+        
+        $shipments = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        
+        // Debug: แสดงข้อมูล shipments ที่ดึงมา
+        error_log("Shipments with lot info for invoice $invoiceId: " . print_r($shipments, true));
+        
+        return $shipments;
     }
     
     public function markAsPaid() {
-    $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+    $id = isset($_GET['id']) ? $_GET['id'] : 0;
     if (isset($_POST['id'])) {
-        $id = (int)$_POST['id'];
+        $id = $_POST['id'];
     }
     
     $invoice = $this->invoiceModel->getInvoiceById($id);
@@ -668,17 +783,30 @@ class InvoiceController {
             
             // Update invoice
             $invoiceData = [
+                'id' => $id,
                 'status' => 'paid',
                 'payment_date' => $paymentDate,
                 'payment_method' => $paymentMethod,
                 'payment_reference' => $paymentReference
             ];
             
-            $result = $this->invoiceModel->updateInvoice($id, $invoiceData);
+            $result = $this->invoiceModel->updateInvoice($invoiceData);
             
             if ($result) {
                 // Update payment_status in invoice_shipments to 'paid'
                 $this->invoiceModel->updateShipmentPaymentStatus($id, 'paid');
+                
+                // อัพเดทสถานะการชำระเงินของ shipments ที่���ยู่ในใบแจ้งหนี้นี้
+                global $db;
+                $checkSql = "SHOW COLUMNS FROM shipments LIKE 'payment_status'";
+                $checkStmt = $db->prepare($checkSql);
+                $checkStmt->execute();
+                if ($checkStmt->rowCount() > 0) {
+                    $sql = "UPDATE shipments SET payment_status = 'paid' WHERE id IN (SELECT shipment_id FROM invoice_shipments WHERE invoice_id = :invoice_id)";
+                    $stmt = $db->prepare($sql);
+                    $stmt->bindParam(':invoice_id', $id);
+                    $stmt->execute();
+                }
                 
                 $_SESSION['success'] = __('invoice_marked_as_paid_successfully');
                 header('Location: index.php?page=invoice&action=view&id=' . $id);
@@ -700,19 +828,19 @@ class InvoiceController {
             $lot = $this->getLotById($shipment['lot_id']);
             if ($lot) {
                 $shipment['origin'] = $lot['origin'] ?? 'N/A';
-                $shipment['destination'] = $lot['destination'] ?? 'N/A';
+                    $shipment['destination'] = $lot['destination'] ?? 'N/A';
+                } else {
+                    $shipment['origin'] = 'N/A';
+                    $shipment['destination'] = 'N/A';
+                }
             } else {
                 $shipment['origin'] = 'N/A';
                 $shipment['destination'] = 'N/A';
             }
-        } else {
-            $shipment['origin'] = 'N/A';
-            $shipment['destination'] = 'N/A';
         }
+        
+        include 'views/invoice/mark_as_paid.php';
     }
-    
-    include 'views/invoice/mark_as_paid.php';
-}
 
     private function getLotById($lotId) {
         global $db;
@@ -832,6 +960,7 @@ class InvoiceController {
         $_SESSION['info'] = __('excel_export_not_implemented_using_csv');
         $this->exportCSV($invoices, $filename);
     }
+
 
     private function exportPDF($invoices, $filename) {
         // For simplicity, we'll redirect to CSV export

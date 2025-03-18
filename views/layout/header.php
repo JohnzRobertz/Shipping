@@ -61,13 +61,13 @@
                    <li class="nav-item">
                        <a class="nav-link <?php echo $page === 'invoice' ? 'active' : ''; ?>" href="index.php?page=invoice">
                            <i class="bi bi-receipt"></i>
-                           <span class="ms-2">Invoices</span>
+                           <span class="ms-2"><?php echo __('invoice'); ?></span>
                        </a>
                    </li>
                    <li class="nav-item">
                        <a class="nav-link <?php echo $page === 'customer' ? 'active' : ''; ?>" href="index.php?page=customer">
                            <i class="bi bi-people"></i>
-                           <span class="ms-2">Customers</span>
+                           <span class="ms-2"><?php echo __('customer'); ?></span>
                        </a>
                    </li>
                <?php endif; ?>
@@ -138,6 +138,11 @@
        </div>
    </div>
 </nav>
+
+<!-- เพิ่มส่วนนี้ในไฟล์ header.php ในตำแหน่งที่เหมาะสม -->
+<div class="container mt-3">
+    <?php include 'views/layout/alerts.php'; ?>
+</div>
 
 <main class="main-content px-4">
 

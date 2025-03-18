@@ -114,7 +114,7 @@ class CustomerController {
     // แก้ไขฟังก์ชัน view เพื่อรองรับ pagination และแสดงใบแจ้งหนี้ 3 เดือนล่าสุด
     public function view() {
         // ดึงค่า ID จาก GET parameter
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $id = isset($_GET['id']) ? $_GET['id'] : 0;
         
         // ตรวจสอบว่ามี ID หรือไม่
         if (!$id) {
@@ -133,7 +133,7 @@ class CustomerController {
         }
         
         // รับค่า page สำหรับ pagination ของใบแจ้งหนี้
-        $invoicePage = isset($_GET['invoice_page']) ? (int)$_GET['invoice_page'] : 1; // เปลี่ยนชื่อตัวแปร
+        $invoicePage = isset($_GET['invoice_page']) ? (int)$_GET['invoice_page'] : 1;
         $per_page = 5; // จำนวนรายการต่อหน้า
         
         // คำนวณ offset สำหรับ SQL
@@ -144,15 +144,15 @@ class CustomerController {
         
         // ดึงข้อมูลใบแจ้งหนี้ 3 เดือนล่าสุด
         $recent_invoices_sql = "SELECT i.*, c.name as customer_name 
-                               FROM invoices i 
-                               LEFT JOIN customers c ON i.customer_id = c.id 
-                               WHERE i.customer_id = :customer_id 
-                               AND i.invoice_date >= :three_months_ago
-                               ORDER BY i.invoice_date DESC
-                               LIMIT :limit OFFSET :offset";
+                           FROM invoices i 
+                           LEFT JOIN customers c ON i.customer_id = c.id 
+                           WHERE i.customer_id = :customer_id 
+                           AND i.invoice_date >= :three_months_ago
+                           ORDER BY i.invoice_date DESC
+                           LIMIT :limit OFFSET :offset";
         
         $stmt = $this->db->prepare($recent_invoices_sql);
-        $stmt->bindParam(':customer_id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':customer_id', $id);
         $stmt->bindParam(':three_months_ago', $three_months_ago);
         $stmt->bindParam(':limit', $per_page, PDO::PARAM_INT);
         $stmt->bindParam(':offset', $offset, PDO::PARAM_INT);
@@ -161,19 +161,19 @@ class CustomerController {
         
         // นับจำนวนใบแจ้งหนี้ทั้งหมดในช่วง 3 เดือนล่าสุด
         $count_sql = "SELECT COUNT(*) as total 
-                     FROM invoices 
-                     WHERE customer_id = :customer_id 
-                     AND invoice_date >= :three_months_ago";
+                 FROM invoices 
+                 WHERE customer_id = :customer_id 
+                 AND invoice_date >= :three_months_ago";
         
         $stmt = $this->db->prepare($count_sql);
-        $stmt->bindParam(':customer_id', $id, PDO::PARAM_INT);
+        $stmt->bindParam(':customer_id', $id);
         $stmt->bindParam(':three_months_ago', $three_months_ago);
         $stmt->execute();
         $result = $stmt->fetch(PDO::FETCH_ASSOC);
         $total_invoices = $result['total'];
         
         // คำนวณจำนวนหน้าทั้งหมด
-        $totalInvoicePages = ceil($total_invoices / $per_page); // เปลี่ยนชื่อตัวแปร
+        $totalInvoicePages = ceil($total_invoices / $per_page);
         
         // ปรับค่า invoicePage ให้อยู่ในช่วงที่ถูกต้อง
         if ($invoicePage < 1) {
@@ -236,7 +236,7 @@ class CustomerController {
     }
     
     public function edit() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        $id = isset($_GET['id']) ? $_GET['id'] : 0;
         $customer = $this->customerModel->getCustomerById($id);
         
         if (!$customer) {
@@ -247,6 +247,9 @@ class CustomerController {
         
         // Process form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+            // Debug: แสดงข้อมูลที่ได้รับจากฟอร์ม
+            error_log("Edit customer POST data: " . print_r($_POST, true));
+            
             $name = $_POST['name'] ?? '';
             $code = $_POST['code'] ?? '';
             $email = $_POST['email'] ?? '';
@@ -261,8 +264,9 @@ class CustomerController {
             }
             
             if (empty($errors)) {
-                // Update customer
+                // Update customer - ใช้เฉพาะฟิลด์ที่มีในตาราง
                 $customerData = [
+                    'id' => $id,
                     'name' => $name,
                     'code' => $code,
                     'email' => $email,
@@ -271,7 +275,7 @@ class CustomerController {
                     'tax_id' => $taxId
                 ];
                 
-                $result = $this->customerModel->updateCustomer($id, $customerData);
+                $result = $this->customerModel->updateCustomer($customerData);
                 
                 if ($result) {
                     $_SESSION['success'] = 'Customer updated successfully';
@@ -290,7 +294,21 @@ class CustomerController {
     }
     
     public function delete() {
-        $id = isset($_GET['id']) ? (int)$_GET['id'] : 0;
+        // ดึงค่า ID จาก GET หรือ POST parameter
+        $id = isset($_POST['id']) ? $_POST['id'] : (isset($_GET['id']) ? $_GET['id'] : 0);
+        
+        // Debug: แสดง ID ที่ได้รับและข้อมูล request
+        error_log("Delete customer - ID received: " . $id);
+        error_log("Delete customer - REQUEST_METHOD: " . $_SERVER['REQUEST_METHOD']);
+        error_log("Delete customer - POST data: " . print_r($_POST, true));
+        error_log("Delete customer - GET data: " . print_r($_GET, true));
+        
+        if (empty($id)) {
+            $_SESSION['error'] = 'Customer ID is required';
+            header('Location: index.php?page=customer');
+            exit();
+        }
+        
         $customer = $this->customerModel->getCustomerById($id);
         
         if (!$customer) {
@@ -310,6 +328,9 @@ class CustomerController {
         
         // Process form submission
         if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['confirm']) && $_POST['confirm'] === 'yes') {
+            // Debug: แสดงข้อมูล POST
+            error_log("Delete customer - Processing POST request with confirm=yes");
+            
             $result = $this->customerModel->deleteCustomer($id);
             
             if ($result) {
@@ -318,13 +339,18 @@ class CustomerController {
                 exit();
             } else {
                 $_SESSION['error'] = 'Failed to delete customer';
-                header('Location: index.php?page=customer&action=view&id=' . $id);
+                header('Location: index.php?page=customer');
                 exit();
             }
+        } else if ($_SERVER['REQUEST_METHOD'] === 'GET' && isset($_GET['id'])) {
+            // แสดงหน้ายืนยันการลบ
+            include 'views/customer/delete.php';
+        } else {
+            // กรณีไม่ใช่ทั้ง POST หรือ GET ที่มี id
+            $_SESSION['error'] = 'Invalid request';
+            header('Location: index.php?page=customer');
+            exit();
         }
-        
-        // Load view
-        include 'views/customer/delete.php';
     }
     
     // เพิ่มฟังก์ชันใหม่เพื่อดึงสถิติพัสดุตาม customer_code
@@ -379,9 +405,6 @@ class CustomerController {
             ];
         }
     }
-
-
-
 }
 ?>
 

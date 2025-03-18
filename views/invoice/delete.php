@@ -2,29 +2,7 @@
 
 <div class="container-fluid px-4">
     <h1 class="mt-4"><?= __('delete_invoice') ?></h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="index.php?page=dashboard"><?= __('dashboard') ?></a></li>
-        <li class="breadcrumb-item"><a href="index.php?page=invoice"><?= __('invoices') ?></a></li>
-        <li class="breadcrumb-item"><a href="index.php?page=invoice&action=view&id=<?= $invoice['id'] ?>"><?= __('view_invoice') ?></a></li>
-        <li class="breadcrumb-item active"><?= __('delete_invoice') ?></li>
-    </ol>
-    
-    <?php if(isset($_SESSION['success'])): ?>
-        <div class="alert alert-success alert-dismissible fade show" role="alert">
-            <?= $_SESSION['success'] ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php unset($_SESSION['success']); ?>
-    <?php endif; ?>
-    
-    <?php if(isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger alert-dismissible fade show" role="alert">
-            <?= $_SESSION['error'] ?>
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-        </div>
-        <?php unset($_SESSION['error']); ?>
-    <?php endif; ?>
-    
+
     <div class="card mb-4">
         <div class="card-header">
             <i class="fas fa-trash me-1"></i>
@@ -64,13 +42,17 @@
                 </div>
             </div>
             
-            <form action="index.php?page=invoice&action=delete" method="post">
-                <input type="hidden" name="id" value="<?= $invoice['id'] ?>">
-                <input type="hidden" name="confirm" value="yes">
+            <form action="index.php?page=invoice&action=delete" method="post" class="mt-4">
+                <input type="hidden" name="id" value="<?= htmlspecialchars($invoice['id']) ?>">
+                <div class="form-check mb-3">
+                    <input class="form-check-input" type="checkbox" id="confirm" name="confirm" value="yes" required>
+                    <label class="form-check-label" for="confirm">
+                        <?= __('confirm_delete_invoice') ?>
+                    </label>
+                </div>
                 <div class="mb-3">
-                    <p><?= __('delete_invoice_confirmation') ?></p>
                     <button type="submit" class="btn btn-danger"><?= __('delete_invoice') ?></button>
-                    <a href="index.php?page=invoice&action=view&id=<?= $invoice['id'] ?>" class="btn btn-secondary"><?= __('cancel') ?></a>
+                    <a href="index.php?page=invoice&action=view&id=<?= htmlspecialchars($invoice['id']) ?>" class="btn btn-secondary"><?= __('cancel') ?></a>
                 </div>
             </form>
         </div>

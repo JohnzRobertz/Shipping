@@ -367,8 +367,8 @@
                                                 <a href="index.php?page=shipments&action=edit&id=<?= $shipment['id'] ?>" class="btn btn-sm btn-outline-warning" data-bs-toggle="tooltip" title="<?= isset($lang['edit']) ? $lang['edit'] : 'Edit' ?>">
                                                     <i class="fas fa-edit"></i>
                                                 </a>
-                                                <a class="dropdown-item" href="index.php?page=shipment_labels&action=printLabel&id=<?php echo $shipment['id']; ?>" target="_blank">
-                                                    <i class="bi bi-printer"></i> <?= isset($lang['print_tag']) ? $lang['print_tag'] : 'พิมพ์ Tag' ?>
+                                                <a href="index.php?page=shipment_labels&action=printLabel&id=<?php echo $shipment['id']; ?>" target="_blank" class="btn btn-sm btn-outline-primary" data-bs-toggle="tooltip" title="<?= isset($lang['print_tag']) ? $lang['print_tag'] : 'พิมพ์ Tag' ?>">
+                                                    <i class="fas fa-print"></i>
                                                 </a>
                                                 <a href="javascript:void(0);" class="btn btn-sm btn-outline-danger delete-btn" data-id="<?= $shipment['id'] ?>" data-tracking="<?= htmlspecialchars($shipment['tracking_number']) ?>" data-bs-toggle="tooltip" title="<?= isset($lang['delete']) ? $lang['delete'] : 'Delete' ?>">
                                                     <i class="fas fa-trash"></i>
@@ -551,16 +551,8 @@
                 <p class="text-center text-danger small"><?= isset($lang['action_cannot_be_undone']) ? $lang['action_cannot_be_undone'] : 'This action cannot be undone' ?></p>
             </div>
             <div class="modal-footer">
-                <form action="index.php?page=shipments&action=delete" method="post">
-                    <?php if (function_exists('getCsrfInput')): ?>
-                        <?= getCsrfInput() ?>
-                    <?php else: ?>
-                        <input type="hidden" name="csrf_token" value="<?= isset($_SESSION['csrf_token']) ? $_SESSION['csrf_token'] : '' ?>">
-                    <?php endif; ?>
-                    <input type="hidden" name="id" id="delete-id">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= isset($lang['cancel']) ? $lang['cancel'] : 'Cancel' ?></button>
-                    <button type="submit" class="btn btn-danger"><?= isset($lang['delete']) ? $lang['delete'] : 'Delete' ?></button>
-                </form>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal"><?= isset($lang['cancel']) ? $lang['cancel'] : 'Cancel' ?></button>
+                <a href="#" id="delete-confirm-btn" class="btn btn-danger"><?= isset($lang['delete']) ? $lang['delete'] : 'Delete' ?></a>
             </div>
         </div>
     </div>
@@ -658,17 +650,17 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Delete modal functionality
     const deleteButtons = document.querySelectorAll('.delete-btn');
-    const deleteIdInput = document.getElementById('delete-id');
     const deleteTrackingSpan = document.getElementById('delete-tracking');
+    const deleteConfirmBtn = document.getElementById('delete-confirm-btn');
     
-    if (deleteButtons.length > 0 && deleteIdInput && deleteTrackingSpan) {
+    if (deleteButtons.length > 0 && deleteTrackingSpan && deleteConfirmBtn) {
         deleteButtons.forEach(button => {
             button.addEventListener('click', function() {
                 const id = this.getAttribute('data-id');
                 const tracking = this.getAttribute('data-tracking');
                 
-                deleteIdInput.value = id;
                 deleteTrackingSpan.textContent = tracking;
+                deleteConfirmBtn.href = 'index.php?page=shipments&action=delete&id=' + id;
                 
                 // Use Bootstrap 5 modal API
                 const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));

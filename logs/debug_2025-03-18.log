@@ -1,0 +1,129 @@
+[2025-03-18 04:51:07] Raw shipments from SQL: 3
+[2025-03-18 04:51:07] Unique shipments before adding lot data: 3
+[2025-03-18 04:51:07] Shipments after adding lot data: 3
+[2025-03-18 04:51:07] Final unique shipments count: 3
+[2025-03-18 04:51:28] Raw shipments from SQL: 3
+[2025-03-18 04:51:28] Unique shipments before adding lot data: 3
+[2025-03-18 04:51:28] Shipments after adding lot data: 3
+[2025-03-18 04:51:28] Final unique shipments count: 3
+[2025-03-18 05:14:07] Raw shipments from SQL: 3
+[2025-03-18 05:14:07] Unique shipments before adding lot data: 3
+[2025-03-18 05:14:07] Shipments after adding lot data: 3
+[2025-03-18 05:14:07] Final unique shipments count: 3
+[2025-03-18 05:14:29] Shipment ID: 06AT70B62QTFM712PXQQ59G200
+[2025-03-18 05:14:29] Shipment data: Array
+(
+    [id] => 06AT70B62QTFM712PXQQ59G200
+    [customer_code] => NBB00027
+    [tracking_number] => DKCS202503170004
+    [lot_id] => 06AT51MYFDNKFXA5QX454EQK00
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0000000
+    [receiver_name] => บริษัท เฟท อิน มี จำกัด
+    [receiver_contact] => เลขที่ 98/3 ถนนอ่อนนุช เขตประเวศ แขวงประเวศ กรุงเทพมหานคร 10250
+    [receiver_phone] => 093-562-2364
+    [weight] => 10.00
+    [length] => 10.00
+    [width] => 10.00
+    [height] => 10.00
+    [volumetric_weight] => 0.17
+    [chargeable_weight] => 10.00
+    [price] => 100.00
+    [discount_amount] => 0.00
+    [total_price] => 1000.00
+    [description] => 100
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 0000-00-00 00:00:00
+    [created_at] => 2025-03-17 16:48:41
+    [updated_at] => 2025-03-18 00:36:26
+    [payment_status] => invoiced
+    [lot_number] => SEA-202503-002
+    [lot_type] => sea
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-18 05:14:29] Shipment ID: 06AT6R12CN40E58SQVMQKS6500
+[2025-03-18 05:14:29] Shipment data: Array
+(
+    [id] => 06AT6R12CN40E58SQVMQKS6500
+    [customer_code] => NBB00027
+    [tracking_number] => DKCS202503170003
+    [lot_id] => 06AT51MYFDNKFXA5QX454EQK00
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0000000
+    [receiver_name] => บริษัท เฟท อิน มี จำกัด
+    [receiver_contact] => เลขที่ 98/3 ถนนอ่อนนุช เขตประเวศ แขวงประเวศ กรุงเทพมหานคร 10250
+    [receiver_phone] => 093-562-2364
+    [weight] => 10.00
+    [length] => 10.00
+    [width] => 10.00
+    [height] => 10.00
+    [volumetric_weight] => 0.17
+    [chargeable_weight] => 10.00
+    [price] => 100.00
+    [discount_amount] => 0.00
+    [total_price] => 1000.00
+    [description] => 10
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-17 16:12:21
+    [updated_at] => 2025-03-18 00:36:26
+    [payment_status] => invoiced
+    [lot_number] => SEA-202503-002
+    [lot_type] => sea
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-18 05:14:29] Shipment ID: 06AT6K2SDBFDJYZF27YEASRP00
+[2025-03-18 05:14:29] Shipment data: Array
+(
+    [id] => 06AT6K2SDBFDJYZF27YEASRP00
+    [customer_code] => NBB00027
+    [tracking_number] => DKCS202503170002
+    [lot_id] => 06AT51MYFDNKFXA5QX454EQK00
+    [group_id] => 
+    [sender_name] => NBB CARGO
+    [sender_contact] => Korea
+    [sender_phone] => 0000000
+    [receiver_name] => บริษัท เฟท อิน มี จำกัด
+    [receiver_contact] => เลขที่ 98/3 ถนนอ่อนนุช เขตประเวศ แขวงประเวศ กรุงเทพมหานคร 10250
+    [receiver_phone] => 093-562-2364
+    [weight] => 11.00
+    [length] => 10.00
+    [width] => 10.00
+    [height] => 10.00
+    [volumetric_weight] => 0.17
+    [chargeable_weight] => 11.00
+    [price] => 111.00
+    [discount_amount] => 0.00
+    [total_price] => 1221.00
+    [description] => 111
+    [status] => delivered
+    [domestic_tracking_number] => 
+    [domestic_carrier] => 
+    [handover_date] => 
+    [created_at] => 2025-03-17 15:50:44
+    [updated_at] => 2025-03-18 00:36:26
+    [payment_status] => invoiced
+    [lot_number] => SEA-202503-002
+    [lot_type] => sea
+    [origin] => เกาหลี
+    [destination] => ไทย
+)
+
+[2025-03-18 05:14:29] Added charge with ID: 06ATEXE9ACGYKQ0Y40WC3EZR00
+[2025-03-18 05:14:29] Added charge with ID: 06ATEXE9AN051YZ3HESJKDGQ00
+[2025-03-18 05:53:14] Raw shipments from SQL: 6
+[2025-03-18 05:53:14] Unique shipments before adding lot data: 6
+[2025-03-18 05:53:14] Shipments after adding lot data: 6
+[2025-03-18 05:53:14] Final unique shipments count: 6

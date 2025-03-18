@@ -1,4 +1,7 @@
 <?php
+// กำหนดค่า BASE_PATH เพื่อป้องกันการเข้าถึงไฟล์โดยตรง
+define('BASE_PATH', __DIR__);
+
 session_start();
 require_once 'config/config.php';
 require_once 'helpers/language.php';

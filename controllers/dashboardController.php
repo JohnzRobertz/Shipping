@@ -3,10 +3,12 @@ require_once 'models/Lot.php';
 require_once 'models/Shipment.php';
 require_once 'models/Invoice.php';
 require_once 'helpers/auth.php';
+require_once 'models/TrackingHistory.php';
 
 class DashboardController {
     private $lotModel;
     private $shipmentModel;
+    private $trackingHistoryModel;
     private $db;
     
     public function __construct() {
@@ -14,6 +16,7 @@ class DashboardController {
         $this->db = $db;
         $this->lotModel = new Lot();
         $this->shipmentModel = new Shipment();
+        $this->trackingHistoryModel = new TrackingHistory();
         
         // Require login for all actions
         requireLogin();
@@ -46,11 +49,15 @@ class DashboardController {
         
         // ปรับปรุงการดึงข้อมูล Recent Shipments - ไม่ใช้ pagination เพื่อเพิ่มความเร็ว
         // แสดงเพียง 5 รายการล่าสุดเท่านั้น
-        $recentShipments = $this->shipmentModel->getRecent(5, 0);
+        // $recentShipments = $this->shipmentModel->getRecent(5, 0);
+        $recentShipments = $this->shipmentModel->getRecentShipments(5);
         
         // ปรับปรุงการดึงข้อมูล Recent Lots - ไม่ใช้ pagination เพื่อเพิ่มความเร็ว
         // แสดงเพียง 5 รายการล่าสุดเท่านั้น
         $recentLots = $this->lotModel->getRecent(5, 0);
+
+        // Get recent tracking updates
+        $recentTrackings = $this->trackingHistoryModel->getRecentTrackings(5);
         
         // Load view
         include 'views/dashboard/index.php';
