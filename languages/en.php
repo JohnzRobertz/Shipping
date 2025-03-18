@@ -809,5 +809,24 @@ return [
     'download_pdf_english' => 'Download PDF (English)',
     
 ];
+
+return array_merge(include 'languages/en.php', [
+    // Shipping label translations
+    'print_shipping_label' => 'Print Shipping Label',
+    'print_multiple_shipping_labels' => 'Print Multiple Shipping Labels',
+    'total_labels' => 'Total Labels',
+    'print' => 'Print',
+    'back' => 'Back',
+    'weight' => 'Weight',
+    'dimensions' => 'Dimensions',
+    'lot_number' => 'Lot',
+    'date' => 'Date',
+    'sender' => 'Sender',
+    'receiver' => 'Receiver',
+    'phone' => 'Phone',
+    'thank_you_for_your_business' => 'Thank you for your business',
+]);
+
+
 ?>
 

@@ -1,140 +1,156 @@
-<?php
-// Include header
-include 'views/layout/header.php';
-?>
+<?php include 'views/layout/header.php'; ?>
 
-<div class="container-fluid">
-    <h1 class="mt-4">พิมพ์ Tag พัสดุ</h1>
-    <ol class="breadcrumb mb-4">
-        <li class="breadcrumb-item"><a href="index.php">หน้าหลัก</a></li>
-        <li class="breadcrumb-item active">พิมพ์ Tag พัสดุ</li>
-    </ol>
-    
-    <?php if(isset($_SESSION['error'])): ?>
-        <div class="alert alert-danger">
-            <?= $_SESSION['error']; ?>
-            <?php unset($_SESSION['error']); ?>
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h1 class="h3">พิมพ์ฉลากพัสดุ</h1>
+        <div>
+            <a href="index.php?page=shipments" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left me-2"></i>กลับไปหน้ารายการพัสดุ
+            </a>
         </div>
-    <?php endif; ?>
+    </div>
     
-    <?php if(isset($_SESSION['success'])): ?>
-        <div class="alert alert-success">
-            <?= $_SESSION['success']; ?>
-            <?php unset($_SESSION['success']); ?>
-        </div>
-    <?php endif; ?>
+    <?php include 'views/layout/alerts.php'; ?>
     
-    <div class="card mb-4">
-        <div class="card-header">
-            <i class="fas fa-table mr-1"></i>
-            รายการพัสดุสถานะ "receive" เรียงตามวันที่สร้างล่าสุด
+    <div class="card shadow-sm">
+        <div class="card-header bg-white">
+            <h5 class="card-title mb-0">รายการพัสดุที่รอพิมพ์ฉลาก</h5>
         </div>
         <div class="card-body">
-            <form action="index.php?page=shipment_labels&action=printMultiple" method="post" id="print-form">
-                <div class="mb-3">
-                    <button type="submit" class="btn btn-primary">
-                        <i class="fas fa-print"></i> พิมพ์ Tag ที่เลือก
-                    </button>
+            <?php if (empty($shipments)): ?>
+                <div class="alert alert-info">
+                    ไม่พบพัสดุที่รอพิมพ์ฉลาก
                 </div>
-                
-                <div class="table-responsive">
-                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
-                        <thead>
-                            <tr>
-                                <th width="5%">
-                                    <input type="checkbox" id="select-all">
-                                </th>
-                                <th>Tracking Number</th>
-                                <th>ผู้ส่ง</th>
-                                <th>ผู้รับ</th>
-                                <th>น้ำหนัก (kg)</th>
-                                <th>วันที่สร้าง</th>
-                                <th width="15%">การจัดการ</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php if(isset($shipments) && is_array($shipments) && count($shipments) > 0): ?>
-                                <?php foreach($shipments as $shipment): ?>
-                                    <tr>
-                                        <td>
-                                            <input type="checkbox" name="shipment_ids[]" value="<?= $shipment['id']; ?>" class="shipment-checkbox">
-                                        </td>
-                                        <td><?= $shipment['tracking_number']; ?></td>
-                                        <td><?= $shipment['sender_name']; ?></td>
-                                        <td><?= $shipment['receiver_name']; ?></td>
-                                        <td><?= $shipment['weight']; ?></td>
-                                        <td><?= date('d/m/Y H:i', strtotime($shipment['created_at'])); ?></td>
-                                        <td>
-                                            <a href="index.php?page=shipment_labels&action=printLabel&id=<?= $shipment['id']; ?>" class="btn btn-sm btn-primary" target="_blank">
-                                                <i class="fas fa-print"></i> พิมพ์ Tag
-                                            </a>
-                                        </td>
-                                    </tr>
-                                <?php endforeach; ?>
-                            <?php else: ?>
+            <?php else: ?>
+                <form action="index.php?page=shipment_labels&action=printMultiple" method="post">
+                    <div class="table-responsive">
+                        <table class="table table-hover">
+                            <thead>
                                 <tr>
-                                    <td colspan="7" class="text-center">ไม่พบข้อมูลพัสดุสถานะ "receive"</td>
+                                    <th width="40">
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="checkbox" id="selectAll">
+                                        </div>
+                                    </th>
+                                    <th>หมายเลขพัสดุ</th>
+                                    <th>ผู้ส่ง</th>
+                                    <th>ผู้รับ</th>
+                                    <th>น้ำหนัก</th>
+                                    <th>ขนาด</th>
+                                    <th>วันที่รับเข้า</th>
+                                    <th width="120">การจัดการ</th>
                                 </tr>
-                            <?php endif; ?>
-                        </tbody>
-                    </table>
-                </div>
-            </form>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($shipments as $shipment): ?>
+                                <tr>
+                                    <td>
+                                        <div class="form-check">
+                                            <input class="form-check-input shipment-checkbox" type="checkbox" name="shipment_ids[]" value="<?php echo $shipment['id']; ?>">
+                                        </div>
+                                    </td>
+                                    <td><?php echo htmlspecialchars($shipment['tracking_number']); ?></td>
+                                    <td><?php echo htmlspecialchars($shipment['sender_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($shipment['receiver_name']); ?></td>
+                                    <td><?php echo htmlspecialchars($shipment['weight']); ?> kg</td>
+                                    <td><?php echo htmlspecialchars($shipment['length']); ?> x <?php echo htmlspecialchars($shipment['width']); ?> x <?php echo htmlspecialchars($shipment['height']); ?> cm</td>
+                                    <td><?php echo date('d/m/Y', strtotime($shipment['created_at'])); ?></td>
+                                    <td>
+                                        <a href="index.php?page=shipment_labels&action=printLabel&id=<?php echo $shipment['id']; ?>" class="btn btn-sm btn-primary" target="_blank">
+                                            <i class="fas fa-print"></i> พิมพ์
+                                        </a>
+                                    </td>
+                                </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <div class="mt-3">
+                        <button type="submit" class="btn btn-success" id="printSelectedBtn" disabled>
+                            <i class="fas fa-print me-2"></i>พิมพ์ฉลากที่เลือก
+                        </button>
+                        <button type="button" class="btn btn-outline-primary" id="selectAllBtn">
+                            <i class="fas fa-check-square me-2"></i>เลือกทั้งหมด
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" id="deselectAllBtn">
+                            <i class="fas fa-square me-2"></i>ยกเลิกการเลือกทั้งหมด
+                        </button>
+                    </div>
+                </form>
+            <?php endif; ?>
         </div>
     </div>
 </div>
 
 <script>
-    // เลือกทั้งหมด
-    document.getElementById('select-all').addEventListener('change', function() {
-        var checkboxes = document.getElementsByClassName('shipment-checkbox');
-        for (var i = 0; i < checkboxes.length; i++) {
-            checkboxes[i].checked = this.checked;
-        }
-    });
+document.addEventListener('DOMContentLoaded', function() {
+    // Select All checkbox functionality
+    const selectAllCheckbox = document.getElementById('selectAll');
+    const shipmentCheckboxes = document.querySelectorAll('.shipment-checkbox');
+    const printSelectedBtn = document.getElementById('printSelectedBtn');
+    const selectAllBtn = document.getElementById('selectAllBtn');
+    const deselectAllBtn = document.getElementById('deselectAllBtn');
     
-    // ตรวจสอบก่อนส่งฟอร์ม
-    document.getElementById('print-form').addEventListener('submit', function(e) {
-        var checkboxes = document.getElementsByClassName('shipment-checkbox');
-        var checked = false;
-        
-        for (var i = 0; i < checkboxes.length; i++) {
-            if (checkboxes[i].checked) {
-                checked = true;
-                break;
-            }
-        }
-        
-        if (!checked) {
-            e.preventDefault();
-            alert('กรุณาเลือกพัสดุอย่างน้อย 1 รายการ');
-        }
-    });
+    // Function to update print button state
+    function updatePrintButtonState() {
+        const checkedBoxes = document.querySelectorAll('.shipment-checkbox:checked');
+        printSelectedBtn.disabled = checkedBoxes.length === 0;
+    }
     
-    // Initialize DataTable
-    $(document).ready(function() {
-        $('#dataTable').DataTable({
-            "order": [[5, 'desc']], // เรียงตามวันที่สร้างล่าสุด (คอลัมน์ที่ 5)
-            "language": {
-                "lengthMenu": "แสดง _MENU_ รายการต่อหน้า",
-                "zeroRecords": "ไม่พบข้อมูล",
-                "info": "แสดงหน้า _PAGE_ จาก _PAGES_",
-                "infoEmpty": "ไม่มีข้อมูล",
-                "infoFiltered": "(กรองจากทั้งหมด _MAX_ รายการ)",
-                "search": "ค้นหา:",
-                "paginate": {
-                    "first": "หน้าแรก",
-                    "last": "หน้าสุดท้าย",
-                    "next": "ถัดไป",
-                    "previous": "ก่อนหน้า"
-                }
+    // Select all checkbox change event
+    if (selectAllCheckbox) {
+        selectAllCheckbox.addEventListener('change', function() {
+            shipmentCheckboxes.forEach(checkbox => {
+                checkbox.checked = selectAllCheckbox.checked;
+            });
+            updatePrintButtonState();
+        });
+    }
+    
+    // Individual checkboxes change event
+    shipmentCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', function() {
+            updatePrintButtonState();
+            
+            // Update select all checkbox
+            const allChecked = document.querySelectorAll('.shipment-checkbox:checked').length === shipmentCheckboxes.length;
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = allChecked;
             }
         });
     });
+    
+    // Select All button click event
+    if (selectAllBtn) {
+        selectAllBtn.addEventListener('click', function() {
+            shipmentCheckboxes.forEach(checkbox => {
+                checkbox.checked = true;
+            });
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = true;
+            }
+            updatePrintButtonState();
+        });
+    }
+    
+    // Deselect All button click event
+    if (deselectAllBtn) {
+        deselectAllBtn.addEventListener('click', function() {
+            shipmentCheckboxes.forEach(checkbox => {
+                checkbox.checked = false;
+            });
+            if (selectAllCheckbox) {
+                selectAllCheckbox.checked = false;
+            }
+            updatePrintButtonState();
+        });
+    }
+    
+    // Initial button state
+    updatePrintButtonState();
+});
 </script>
 
-<?php
-// Include footer
-include 'views/layout/footer.php';
-?>
+<?php include 'views/layout/footer.php'; ?>
 

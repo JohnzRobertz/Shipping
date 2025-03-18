@@ -792,5 +792,22 @@ return [
     'download_pdf_english' => 'ดาวน์โหลด PDF (ภาษาอังกฤษ)',
 
 ];
+
+return array_merge($this, [
+  // Shipping label translations
+  'print_shipping_label' => 'พิมพ์ฉลากพัสดุ',
+  'print_multiple_shipping_labels' => 'พิมพ์ฉลากพัสดุหลายรายการ',
+  'total_labels' => 'จำนวนฉลากทั้งหมด',
+  'print' => 'พิมพ์',
+  'back' => 'กลับ',
+  'weight' => 'น้ำหนัก',
+  'dimensions' => 'ขนาด',
+  'lot_number' => 'ล็อต',
+  'date' => 'วันที่',
+  'sender' => 'ผู้ส่ง',
+  'receiver' => 'ผู้รับ',
+  'phone' => 'โทร',
+  'thank_you_for_your_business' => 'ขอบคุณที่ใช้บริการของเรา',
+]);
 ?>
 

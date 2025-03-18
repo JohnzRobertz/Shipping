@@ -1,169 +1,284 @@
+<?php
+// Ensure we have shipments data
+if (!isset($shipments) || empty($shipments)) {
+    echo "ไม่พบข้อมูลพัสดุ";
+    exit;
+}
+
+// Set content type to HTML
+header('Content-Type: text/html; charset=utf-8');
+?>
 <!DOCTYPE html>
 <html lang="th">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>พิมพ์ Tag พัสดุหลายรายการ</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <title>พิมพ์ฉลากพัสดุหลายรายการ</title>
     <style>
-        body {
-            font-family: 'Sarabun', sans-serif;
+        @page {
+            size: 100mm 150mm;
             margin: 0;
-            padding: 20px;
         }
-        .shipping-label {
-            width: 100%;
-            max-width: 400px;
-            border: 1px solid #000;
-            padding: 10px;
-            margin: 0 auto 20px;
-            page-break-inside: avoid;
+        
+        body {
+            font-family: 'Sarabun', 'Prompt', sans-serif;
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
         }
-        .label-header {
+        
+        .label-container {
+            width: 100mm;
+            height: 150mm;
+            padding: 3mm;
+            box-sizing: border-box;
+            position: relative;
+            page-break-after: always;
+        }
+        
+        .header {
             text-align: center;
             border-bottom: 1px solid #000;
-            padding-bottom: 10px;
-            margin-bottom: 10px;
+            padding-bottom: 2mm;
+            margin-bottom: 2mm;
         }
-        .company-logo {
-            font-size: 24px;
+        
+        .company-name {
+            font-size: 14pt;
             font-weight: bold;
+            margin: 0;
         }
-        .tracking-number {
-            font-size: 18px;
-            font-weight: bold;
-            margin-top: 5px;
+        
+        .company-info {
+            font-size: 8pt;
+            margin: 1mm 0;
         }
-        .barcode {
+        
+        .tracking-section {
             text-align: center;
-            margin: 10px 0;
-            padding: 10px;
-            border: 1px dashed #ccc;
-            background-color: #f9f9f9;
+            margin: 3mm 0;
         }
+        
+        .tracking-number {
+            font-size: 14pt;
+            font-weight: bold;
+            margin: 2mm 0;
+        }
+        
+        .barcode {
+            margin: 2mm auto;
+            text-align: center;
+        }
+        
         .barcode img {
-            max-width: 100%;
-            height: auto;
+            max-width: 90mm;
+            height: 15mm;
         }
-        .section {
-            margin-bottom: 10px;
+        
+        .qrcode {
+            position: absolute;
+            top: 35mm;
+            right: 5mm;
+            width: 25mm;
+            height: 25mm;
+            display: block;
+            overflow: visible;
+            z-index: 10;
         }
+        
+        .qrcode img {
+            width: 100%;
+            height: 100%;
+            display: block;
+            object-fit: contain;
+        }
+        
+        .info-section {
+            margin-top: 2mm;
+            font-size: 9pt;
+        }
+        
+        .info-row {
+            display: flex;
+            margin-bottom: 1mm;
+        }
+        
+        .info-label {
+            font-weight: bold;
+            width: 25mm;
+        }
+        
+        .info-value {
+            flex: 1;
+        }
+        
+        .address-section {
+            margin-top: 3mm;
+        }
+        
         .section-title {
             font-weight: bold;
-            background-color: #f0f0f0;
-            padding: 3px;
-            margin-bottom: 5px;
+            font-size: 10pt;
+            border-bottom: 1px dashed #000;
+            margin-bottom: 1mm;
+            padding-bottom: 1mm;
         }
-        .section-content {
-            padding-left: 5px;
+        
+        .address-content {
+            font-size: 10pt;
+            line-height: 1.3;
         }
-        .print-button {
+        
+        .footer {
+            position: absolute;
+            bottom: 3mm;
+            left: 3mm;
+            right: 3mm;
             text-align: center;
-            margin-bottom: 20px;
+            font-size: 8pt;
+            border-top: 1px solid #000;
+            padding-top: 2mm;
         }
         
         @media print {
-            .print-button {
+            .no-print {
                 display: none;
             }
-            body {
-                padding: 0;
-                margin: 0;
-            }
-            .shipping-label {
-                page-break-after: always;
-                border: 1px solid #000;
-                margin: 0;
-                padding: 10px;
-                width: 100%;
-                max-width: none;
-            }
-            .shipping-label:last-child {
-                page-break-after: avoid;
-            }
+        }
+        
+        .print-button {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            padding: 10px 20px;
+            background-color: #0066cc;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            z-index: 9999;
+        }
+        
+        .print-button:hover {
+            background-color: #0052a3;
+        }
+        
+        .controls {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background: #f8f9fa;
+            padding: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
     </style>
 </head>
 <body>
-    <div class="print-button">
-        <button onclick="window.print();" class="btn btn-primary">
-            <i class="fas fa-print"></i> พิมพ์ Tag ทั้งหมด
-        </button>
-        <button onclick="window.close();" class="btn btn-secondary">
-            ปิดหน้านี้
-        </button>
+    <div class="controls no-print">
+        <button class="print-button" onclick="window.history.back();">กลับไปหน้าก่อนหน้า</button>
+        <p>จำนวนฉลากทั้งหมด: <?php echo count($shipments); ?> รายการ</p>
     </div>
     
-    <?php if(isset($shipments) && is_array($shipments) && count($shipments) > 0): ?>
-        <?php foreach($shipments as $shipment): ?>
-            <div class="shipping-label">
-                <div class="label-header">
-                    <div class="company-logo">DKC SHIPPING</div>
-                    <div class="tracking-number"><?= $shipment['tracking_number']; ?></div>
-                </div>
-                
-                <div class="barcode">
-                    <!-- ในที่นี้ใช้ตัวอักษรแทนบาร์โค้ด แต่ในการใช้งานจริงควรใช้ไลบรารีสร้างบาร์โค้ด -->
-                    <div style="font-family: monospace; font-size: 14px; letter-spacing: 2px;">
-                        *<?= $shipment['tracking_number']; ?>*
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">ผู้ส่ง:</div>
-                    <div class="section-content">
-                        <strong><?= $shipment['sender_name']; ?></strong><br>
-                        <?= $shipment['sender_contact']; ?><br>
-                        โทร: <?= $shipment['sender_phone']; ?>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">ผู้รับ:</div>
-                    <div class="section-content">
-                        <strong><?= $shipment['receiver_name']; ?></strong><br>
-                        <?= $shipment['receiver_contact']; ?><br>
-                        โทร: <?= $shipment['receiver_phone']; ?>
-                    </div>
-                </div>
-                
-                <div class="section">
-                    <div class="section-title">รายละเอียดพัสดุ:</div>
-                    <div class="section-content">
-                        <table style="width: 100%;">
-                            <tr>
-                                <td>น้ำหนัก:</td>
-                                <td><?= $shipment['weight']; ?> kg</td>
-                            </tr>
-                            <tr>
-                                <td>ขนาด:</td>
-                                <td><?= $shipment['length']; ?> x <?= $shipment['width']; ?> x <?= $shipment['height']; ?> cm</td>
-                            </tr>
-                            <tr>
-                                <td>วันที่:</td>
-                                <td><?= date('d/m/Y', strtotime($shipment['created_at'])); ?></td>
-                            </tr>
-                        </table>
-                    </div>
-                </div>
-                
-                <?php if (!empty($shipment['description'])): ?>
-                <div class="section">
-                    <div class="section-title">หมายเหตุ:</div>
-                    <div class="section-content">
-                        <?= $shipment['description']; ?>
-                    </div>
-                </div>
+    <?php foreach ($shipments as $shipment): ?>
+    <div class="label-container">
+        <!-- Header with Company Info -->
+        <div class="header">
+            <p class="company-name">DKC LOGISTICS</p>
+            <!-- <p class="company-info">บริษัท ดีเคซี โลจิสติกส์ จำกัด</p>
+            <p class="company-info">โทร: 02-XXX-XXXX | Line: @dkclogistics</p> -->
+        </div>
+        
+        <!-- Tracking Number and Barcode -->
+        <div class="tracking-section">
+            <div class="tracking-number"><?php echo htmlspecialchars($shipment['tracking_number']); ?></div>
+            <div class="barcode">
+                <img src="https://barcode.tec-it.com/barcode.ashx?data=<?php echo urlencode($shipment['tracking_number']); ?>&code=Code128&multiplebarcodes=false&translate-esc=false&unit=Fit&dpi=96&imagetype=Gif&rotation=0&color=%23000000&bgcolor=%23ffffff&codepage=Default&qunit=Mm&quiet=0" alt="Barcode">
+            </div>
+        </div>
+        
+        <!-- QR Code for tracking -->
+        <!-- <div class="qrcode">
+            <img src="https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=<?php echo urlencode($shipment['tracking_number']); ?>" alt="QR Code">
+        </div>
+         -->
+        <!-- Package Information -->
+        <div class="info-section">
+            <div class="info-row">
+                <div class="info-label">น้ำหนัก:</div>
+                <div class="info-value"><?php echo htmlspecialchars($shipment['weight']); ?> kg</div>
+            </div>
+            <div class="info-row">
+                <div class="info-label">ขนาด:</div>
+                <div class="info-value"><?php echo htmlspecialchars($shipment['length']); ?> x <?php echo htmlspecialchars($shipment['width']); ?> x <?php echo htmlspecialchars($shipment['height']); ?> cm</div>
+            </div>
+            <?php if (!empty($shipment['lot_number'])): ?>
+            <div class="info-row">
+                <div class="info-label">ล็อต:</div>
+                <div class="info-value"><?php echo htmlspecialchars($shipment['lot_number']); ?></div>
+            </div>
+            <?php endif; ?>
+            <div class="info-row">
+                <div class="info-label">วันที่:</div>
+                <div class="info-value"><?php echo date('d/m/Y', strtotime($shipment['created_at'])); ?></div>
+            </div>
+        </div>
+        
+        <!-- Sender Information -->
+        <div class="address-section">
+            <div class="section-title">ผู้ส่ง</div>
+            <div class="address-content">
+                <strong><?php echo htmlspecialchars($shipment['sender_name']); ?></strong><br>
+                <?php echo htmlspecialchars($shipment['sender_contact']); ?><br>
+                <?php if (!empty($shipment['sender_phone'])): ?>
+                โทร: <?php echo htmlspecialchars($shipment['sender_phone']); ?>
                 <?php endif; ?>
             </div>
-        <?php endforeach; ?>
-    <?php else: ?>
-        <div class="alert alert-warning">
-            ไม่พบข้อมูลพัสดุที่เลือก
         </div>
-    <?php endif; ?>
+        
+        <!-- Receiver Information -->
+        <div class="address-section">
+            <div class="section-title">ผู้รับ</div>
+            <div class="address-content">
+                <strong><?php echo htmlspecialchars($shipment['receiver_name']); ?></strong><br>
+                <?php echo htmlspecialchars($shipment['receiver_contact']); ?><br>
+                <?php if (!empty($shipment['receiver_phone'])): ?>
+                โทร: <?php echo htmlspecialchars($shipment['receiver_phone']); ?>
+                <?php endif; ?>
+            </div>
+        </div>
+        
+        <!-- Footer -->
+        <div class="footer">
+            ขอบคุณที่ใช้บริการของเรา
+        </div>
+    </div>
+    <?php endforeach; ?>
     
-    <script src="https://kit.fontawesome.com/a076d05399.js"></script>
+    <script>
+        // Auto print when page loads
+        window.onload = function() {
+            setTimeout(function() {
+                window.print();
+            }, 500); // เพิ่มดีเลย์เล็กน้อยเพื่อให้แน่ใจว่าหน้าโหลดเสร็จสมบูรณ์
+        };
+    </script>
+    <script>
+        // ตรวจสอบการโหลดรูปภาพ QR Code
+        document.addEventListener('DOMContentLoaded', function() {
+            var qrImages = document.querySelectorAll('.qrcode img');
+            qrImages.forEach(function(qrImage) {
+                qrImage.onerror = function() {
+                    console.error('ไม่สามารถโหลด QR Code ได้');
+                    // สร้าง QR Code แบบ fallback ด้วย text
+                    var qrDiv = this.parentNode;
+                    qrDiv.innerHTML = '<div style="width:100%;height:100%;background:#fff;border:1px solid #000;display:flex;align-items:center;justify-content:center;text-align:center;font-size:8pt;">SCAN<br>TO<br>TRACK</div>';
+                };
+            });
+        });
+    </script>
 </body>
 </html>
 
